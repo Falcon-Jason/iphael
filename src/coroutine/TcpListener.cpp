@@ -11,7 +11,7 @@
 #include <cassert>
 
 namespace iphael::coroutine {
-    bool TcpListener::Start(EventLoop &loop, const InetAddress &address) {
+    bool TcpListener::Start(EventLoopConcept &loop, const InetAddress &address) {
         assert(!Started());
 
         socket = std::make_unique<TcpSocket>(TcpSocket::Listen(address));
@@ -35,7 +35,7 @@ namespace iphael::coroutine {
         return socket == nullptr ? -1 : socket->Fildes();
     }
 
-    EventLoop &TcpListener::ParentLoop() {
+    EventLoopConcept &TcpListener::ParentLoop() {
         return event->ParentLoop();
     }
 

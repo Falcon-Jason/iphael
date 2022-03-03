@@ -8,20 +8,17 @@
 
 namespace iphael::coroutine {
     TcpServer::TcpServer(TaskFunction task)
-            : parentLoop{nullptr},
-              listener{[this](auto sock){ handleConnection(std::move(sock)); }},
+            : listener{[this](auto sock){ handleConnection(std::move(sock)); }},
               connectionSet{},
               task{std::move(task)}{
     }
 
-    bool TcpServer::Start(EventLoop &loop, const InetAddress &address) {
-        parentLoop = &loop;
+    bool TcpServer::Start(EventLoopConcept &loop, const InetAddress &address) {
         return listener.Start(loop, address);
     }
 
     void TcpServer::Stop()  {
         listener.Stop();
-        parentLoop = nullptr;
     }
 
     TcpConnection &TcpServer::addConnection(TcpConnection conn) {
@@ -51,7 +48,7 @@ namespace iphael::coroutine {
     }
 
     void TcpServer::handleConnection(TcpSocket socket) {
-        auto &conn = addConnection(TcpConnection{*this->parentLoop, std::move(socket)});
+        auto &conn = addConnection(TcpConnection{ParentLoop(), std::move(socket)});
         conn.SetHandler([this, &conn] { handleMessage(conn); });
         task(conn);
     }

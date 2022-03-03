@@ -9,7 +9,7 @@
 #include "core/EventLoop.h"
 
 namespace iphael {
-    Event::Event(EventLoop &loop, int fildes)
+    Event::Event(EventLoopConcept &loop, int fildes)
             : parent{&loop},
               fildes{fildes},
               mode{EventMode::NO_EVENT},

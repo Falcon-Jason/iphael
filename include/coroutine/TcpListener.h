@@ -13,7 +13,7 @@
 
 namespace iphael {
     class Event;
-    class EventLoop;
+    class EventLoopConcept;
     class InetAddress;
     class TcpSocket;
 
@@ -34,7 +34,7 @@ namespace iphael {
                     : callback{std::move(cb)} {
             }
 
-            bool Start(EventLoop& loop, const InetAddress& address);
+            bool Start(EventLoopConcept& loop, const InetAddress& address);
 
             void Stop();
 
@@ -44,7 +44,7 @@ namespace iphael {
 
             NODISCARD int Fildes() const;
 
-            EventLoop &ParentLoop();
+            EventLoopConcept &ParentLoop();
 
             Awaitable Accept();
 

@@ -22,7 +22,6 @@ namespace iphael::coroutine {
         using TaskFunction = std::function<Task(TcpConnection & )>;
 
     private:
-        EventLoop *parentLoop;
         TcpListener listener;
         ConnectionSet connectionSet;
         TaskFunction task;
@@ -30,11 +29,13 @@ namespace iphael::coroutine {
     public:
         explicit TcpServer(TaskFunction task);
 
-        bool Start(EventLoop &loop, const InetAddress &address) ;
+        bool Start(EventLoopConcept &loop, const InetAddress &address) ;
 
         void Stop();
 
         NODISCARD auto Started() const { return listener.Started(); }
+
+        EventLoopConcept &ParentLoop() { return listener.ParentLoop(); }
 
     private:
         TcpConnection &addConnection(TcpConnection conn);

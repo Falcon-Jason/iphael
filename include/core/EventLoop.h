@@ -5,7 +5,7 @@
   */
 
 #pragma once
-
+#include "core/EventLoopConcept.h"
 #include <atomic>
 #include <thread>
 #include <memory>
@@ -21,7 +21,7 @@ namespace iphael {
      * or as main event loop in one-loop-per-thread model.
      * This event loop can only run in one I/O thread.
      */
-    class EventLoop {
+    class EventLoop : public EventLoopConcept {
     protected:
         std::atomic_bool executing;
         std::thread::id threadId;
@@ -33,7 +33,7 @@ namespace iphael {
          */
         EventLoop();
 
-        ~EventLoop();
+        ~EventLoop() override;
 
         /**
          * @return whether current thread is bind to this loop.
@@ -58,14 +58,14 @@ namespace iphael {
          * Call this function before being listened or after modified.
          * @param event the event to be updated.
          */
-        void UpdateEvent(Event *event);
+        void UpdateEvent(Event *event) override;
 
         /**
          * Remove the given event from current event-loop.
          * Should be called before the event is destroyed.
          * @param event the event to be removed
          */
-        void RemoveEvent(Event *event);
+        void RemoveEvent(Event *event) override;
 
     private:
         bool processEvent(Event *event);
