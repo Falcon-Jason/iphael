@@ -1,16 +1,9 @@
-set(SELECTOR
-        core/eventloop/selector/Selector.cpp
-        core/eventloop/selector/EpollSelector.cpp)
-
-set(EVENTLOOP
-        core/EventLoop.cpp
-        core/eventloop/ReactorEventLoop.cpp)
-
 add_library(iphael
-        ${SELECTOR}
-        ${EVENTLOOP}
+        core/Selector.cpp
+        core/EventLoop.cpp
         core/Signal.cpp
         core/Event.cpp
+        core/EventArgument.cpp
         net/InetAddress.cpp
         net/TcpSocket.cpp
         coroutine/Coroutine.cpp

@@ -3,7 +3,7 @@
   * @author jason
   * @date 2022/2/28
   */
-
+#include "../core/EventArgument.h"
 #include "coroutine/TcpServer.h"
 
 namespace iphael::coroutine {
@@ -42,7 +42,7 @@ namespace iphael::coroutine {
     void TcpServer::handleMessage(TcpConnection &conn) {
         fmt::print("Handling connection {}\n", conn.Fildes());
 
-        auto *arg = get_if<SingleBufferArgument>(&conn.event->Argument());
+        auto *arg = conn.event->EventArgument().Get<Event::SingleBufferArgument>();
         if (arg == nullptr || arg->lengthR > 0) {
             conn.coroutine.Resume();
         } else {

@@ -5,6 +5,7 @@
   */
 
 #include "core/Event.h"
+#include "EventArgument.h"
 #include "core/EventLoop.h"
 
 namespace iphael {
@@ -14,7 +15,7 @@ namespace iphael {
               mode{EventMode::NO_EVENT},
               handler{nullptr},
               index{-1},
-              argument{nullptr} {
+              argument{new Argument{}} {
     }
 
     Event::~Event() {
@@ -27,23 +28,18 @@ namespace iphael {
         return parent->UpdateEvent(this);
     }
 
-    Event &Event::SetAsyncWait(EventMode mode) {
-        this->mode = mode;
-        this->argument = nullptr;
-        return *this;
+    void Event::SetAsyncWait(EventMode m) {
+        mode = m;
+        argument->Set(nullptr);
     }
 
-    Event &Event::SetAsyncReadSome(void *buffer, size_t length) {
-        this->mode = EventMode::ASYNC_READ;
-        this->argument.emplace<SingleBufferArgument>(buffer, length);
-        return *this;
+    void Event::SetAsyncReadSome(void *buffer, size_t length) {
+        mode = EventMode::ASYNC_READ;
+        argument->Set(buffer, length);
     }
 
-    Event &Event::SetAsyncWrite(void *buffer, size_t length) {
+    void Event::SetAsyncWrite(void *buffer, size_t length) {
         this->mode = EventMode::ASYNC_WRITE;
-        this->argument.emplace<SingleBufferArgument>(buffer, length);
-        return *this;
+        argument->Set(buffer, length);
     }
-
-
 }

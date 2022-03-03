@@ -12,35 +12,42 @@ namespace iphael {
     class Event;
 
     class Selector : Noncopyable {
+    private:
+        int poller;
+        int eventCount;
+
     public:
-        virtual ~Selector() = default;
+        /**
+         * Create a selector.
+         */
+        Selector();
+
+        /**
+         * Destroy a selector.
+         */
+        ~Selector();
 
         /**
          * AsyncWait until an event triggered
          * @return the triggered event
          */
-        virtual Event *Wait() = 0;
+        Event *Wait();
 
         /**
          * UpdateEvent the changes of event
          * @param event the event to be updated
          */
-        virtual void UpdateEvent(Event *event) = 0;
+        void UpdateEvent(Event *event);
 
         /**
          * Remove the event from selector
          * @param event the event to be removed
          */
-        virtual void RemoveEvent(Event *event) = 0;
+        void RemoveEvent(Event *event);
 
-        virtual bool Empty() = 0;
+        /**
+         * @return whether there is no event to be selected.
+         */
+        NODISCARD bool Empty() const { return eventCount == 0; }
     };
-
-    using SelectorPtr = std::unique_ptr<Selector>;
-
-    /**
-     * static factory function for creating selector.
-     * @return a newly created selector.
-     */
-    SelectorPtr MakeDefaultSelector();
 } // iphael

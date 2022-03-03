@@ -20,15 +20,15 @@ coroutine::Task ConnectionTask(coroutine::TcpConnection &conn) {
 }
 
 int main() {
-    auto loop = MakeDefaultEventLoop();
+    EventLoop loop;
 
     coroutine::TcpServer server{ConnectionTask};
-    server.Start(*loop, InetAddress{1234});
+    server.Start(loop, InetAddress{1234});
 
     std::thread{[&] {
         getchar();
-        loop->Shutdown();
+        loop.Shutdown();
     }}.detach();
 
-    return loop->Execute();
+    return loop.Execute();
 }

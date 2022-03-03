@@ -1,15 +1,15 @@
 /**
-  * @file EpollSelector.cpp
+  * @file Selector.cpp
   * @author jason
-  * @date 2022/2/13
+  * @date 2022/2/19
   */
 
 #include "core/Event.h"
-#include "EpollSelector.h"
+#include "Selector.h"
 #include <sys/epoll.h>
 
 namespace iphael {
-    EpollSelector::EpollSelector()
+    Selector::Selector()
             : poller{ -1 },
               eventCount{ 0 } {
         poller = epoll_create1(EPOLL_CLOEXEC);
@@ -18,7 +18,7 @@ namespace iphael {
         }
     }
 
-    EpollSelector::~EpollSelector() noexcept {
+    Selector::~Selector() noexcept {
         if (poller >= 0) {
             close(poller);
         }
@@ -37,7 +37,7 @@ namespace iphael {
         }
     }
 
-    void EpollSelector::UpdateEvent(Event *event) {
+    void Selector::UpdateEvent(Event *event) {
         int op = EPOLL_CTL_MOD;
 
         if (event->Index() < 0) {
@@ -53,17 +53,17 @@ namespace iphael {
         epoll_ctl(poller, op, event->Fildes(), &epev);
     }
 
-    void EpollSelector::RemoveEvent(Event *event) {
+    void Selector::RemoveEvent(Event *event) {
         epoll_ctl(poller, EPOLL_CTL_DEL, event->Fildes(), nullptr);
         event->Index() = -1;
         eventCount--;
     }
 
-    Event *EpollSelector::Wait() {
+    Event *Selector::Wait() {
         epoll_event epev{};
         int count = epoll_wait(poller, &epev, 1, -1);
 
         if (count != 1) { return nullptr; }
         return static_cast<Event *>(epev.data.ptr);
     }
-} // iphael
+}

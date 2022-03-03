@@ -25,7 +25,7 @@ namespace iphael {
 
         TcpSocket(nullptr_t) : TcpSocket{} {}
 
-        TcpSocket(TcpSocket &&rhs) noexcept: TcpSocket{rhs.Release()} {}
+        TcpSocket(TcpSocket &&rhs) noexcept : TcpSocket{rhs.Release()} {}
 
         TcpSocket &operator=(TcpSocket &&rhs) noexcept;
 

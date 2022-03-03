@@ -4,6 +4,7 @@
   * @date 2022/2/15
   */
 
+#include "../core/EventArgument.h"
 #include "coroutine/TcpConnection.h"
 #include "coroutine/TcpServer.h"
 #include <sys/socket.h>
@@ -29,14 +30,14 @@ namespace iphael::coroutine {
         return Awaitable{this};
     }
 
-    // Functions for Awaitable
+    /// Functions for Awaitable
+
     TcpConnection::Awaitable::Awaitable(TcpConnection *conn) {
         this->conn = conn;
     }
 
     ssize_t TcpConnection::Awaitable::await_resume() const noexcept {
-        auto *arg = get_if<SingleBufferArgument>(&conn->event->Argument());
-        return arg == nullptr ? -1 : arg->lengthR;
+        return conn->event->EventArgument().GetReturnedLength();
     }
 
     void TcpConnection::Awaitable::await_suspend(std::coroutine_handle<> handle) {

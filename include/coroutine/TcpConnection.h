@@ -57,9 +57,9 @@ namespace iphael::coroutine {
     public:
         friend class TcpConnection;
 
-        bool await_ready() const { return false; }
+        static bool await_ready() { return false; }
 
-        ssize_t await_resume() const noexcept;
+        NODISCARD ssize_t await_resume() const noexcept;
 
         void await_suspend(std::coroutine_handle<> handle);
     };
