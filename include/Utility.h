@@ -9,6 +9,7 @@
 #include <functional>
 #include <thread>
 #include <cstdlib>
+#define NODISCARD [[nodiscard]]
 
 namespace iphael {
     using Function = std::function<void()>;

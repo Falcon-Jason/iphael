@@ -7,6 +7,23 @@
 #include "coroutine/TcpServer.h"
 
 namespace iphael::coroutine {
+    TcpServer::TcpServer(TaskFunction task)
+            : parentLoop{nullptr},
+              listener{[this](auto sock){ handleConnection(std::move(sock)); }},
+              connectionSet{},
+              task{std::move(task)}{
+    }
+
+    bool TcpServer::Start(EventLoop &loop, const InetAddress &address) {
+        parentLoop = &loop;
+        return listener.Start(loop, address);
+    }
+
+    void TcpServer::Stop()  {
+        listener.Stop();
+        parentLoop = nullptr;
+    }
+
     TcpConnection &TcpServer::addConnection(TcpConnection conn) {
         int fildes = conn.Fildes();
         connectionSet.emplace(std::make_pair(fildes, std::move(conn)));

@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "net/TcpListener.h"
 #include "net/TcpSocket.h"
+#include "coroutine/TcpListener.h"
 #include "coroutine/TcpConnection.h"
 #include <map>
 #include <functional>
@@ -22,30 +22,19 @@ namespace iphael::coroutine {
         using TaskFunction = std::function<Task(TcpConnection & )>;
 
     private:
-        EventLoop *parentLoop{};
-        TcpListener listener{};
-        ConnectionSet connectionSet{};
-        TaskFunction task{nullptr};
+        EventLoop *parentLoop;
+        TcpListener listener;
+        ConnectionSet connectionSet;
+        TaskFunction task;
 
     public:
-        explicit TcpServer(TaskFunction task) {
-            this->task = std::move(task);
-            this->listener.SetCallback(std::bind(
-                    &TcpServer::handleConnection, this,
-                    std::placeholders::_1));
-        }
+        explicit TcpServer(TaskFunction task);
 
-        auto Start(EventLoop &loop, const InetAddress &address) {
-            parentLoop = &loop;
-            return listener.Start(loop, address);
-        }
+        bool Start(EventLoop &loop, const InetAddress &address) ;
 
-        void Stop() {
-            listener.Stop();
-            parentLoop = nullptr;
-        }
+        void Stop();
 
-        auto Started() const { return listener.Started(); }
+        NODISCARD auto Started() const { return listener.Started(); }
 
     private:
         TcpConnection &addConnection(TcpConnection conn);

@@ -19,27 +19,27 @@ namespace iphael::coroutine {
 
     TcpConnection::~TcpConnection() = default;
 
-    TcpConnection::Awaiter TcpConnection::Read(void *buffer, size_t length) {
+    TcpConnection::Awaitable TcpConnection::Read(void *buffer, size_t length) {
         event->SetAsyncReadSome(buffer, length);
-        return Awaiter{this};
+        return Awaitable{this};
     }
 
-    TcpConnection::Awaiter TcpConnection::Write(void *buffer, size_t length) {
+    TcpConnection::Awaitable TcpConnection::Write(void *buffer, size_t length) {
         event->SetAsyncWrite(buffer, length);
-        return Awaiter{this};
+        return Awaitable{this};
     }
 
-    // Functions for Awaiter
-    TcpConnection::Awaiter::Awaiter(TcpConnection *conn) {
+    // Functions for Awaitable
+    TcpConnection::Awaitable::Awaitable(TcpConnection *conn) {
         this->conn = conn;
     }
 
-    ssize_t TcpConnection::Awaiter::await_resume() const noexcept {
+    ssize_t TcpConnection::Awaitable::await_resume() const noexcept {
         auto *arg = get_if<SingleBufferArgument>(&conn->event->Argument());
         return arg == nullptr ? -1 : arg->lengthR;
     }
 
-    void TcpConnection::Awaiter::await_suspend(std::coroutine_handle<> handle) {
+    void TcpConnection::Awaitable::await_suspend(std::coroutine_handle<> handle) {
         conn->coroutine = std::move(handle);
         conn->event->Update();
     }

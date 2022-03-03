@@ -18,7 +18,7 @@ namespace iphael {
 namespace iphael::coroutine {
     class TcpConnection {
     public:
-        class Awaiter;
+        class Awaitable;
 
         friend class TcpServer;
 
@@ -44,24 +44,24 @@ namespace iphael::coroutine {
 
         int Fildes() { return socket.Fildes(); }
 
-        Awaiter Read(void *buffer, size_t length);
+        Awaitable Read(void *buffer, size_t length);
 
-        Awaiter Write(void *buffer, size_t length);
+        Awaitable Write(void *buffer, size_t length);
+    };
 
-        class Awaiter {
-            TcpConnection *conn;
+    class TcpConnection::Awaitable {
+        TcpConnection *conn;
 
-            explicit Awaiter(TcpConnection *conn);
+        explicit Awaitable(TcpConnection *conn);
 
-        public:
-            friend class TcpConnection;
+    public:
+        friend class TcpConnection;
 
-            bool await_ready() const { return false; }
+        bool await_ready() const { return false; }
 
-            ssize_t await_resume() const noexcept;
+        ssize_t await_resume() const noexcept;
 
-            void await_suspend(std::coroutine_handle<> handle);
-        };
+        void await_suspend(std::coroutine_handle<> handle);
     };
 
     using TcpConnectionPtr = std::unique_ptr<TcpConnection>;
