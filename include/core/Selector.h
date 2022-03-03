@@ -25,7 +25,7 @@ namespace iphael {
         /**
          * Destroy a selector.
          */
-        ~Selector();
+        ~Selector() noexcept;
 
         /**
          * AsyncWait until an event triggered

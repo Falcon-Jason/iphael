@@ -4,7 +4,7 @@
   * @date 2022/2/15
   */
 
-#include "../core/EventArgument.h"
+#include "core/EventArgument.h"
 #include "coroutine/TcpConnection.h"
 #include "coroutine/TcpServer.h"
 #include <sys/socket.h>

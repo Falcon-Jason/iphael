@@ -5,7 +5,7 @@
   */
 
 #include "core/Event.h"
-#include "Selector.h"
+#include "core/Selector.h"
 #include <sys/epoll.h>
 
 namespace iphael {
