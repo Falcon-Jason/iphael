@@ -13,7 +13,7 @@ namespace iphael::coroutine {
               task{std::move(task)}{
     }
 
-    bool TcpServer::Start(EventLoopConcept &loop, const InetAddress &address) {
+    bool TcpServer::Start(ExecutorConcept &loop, const InetAddress &address) {
         return listener.Start(loop, address);
     }
 

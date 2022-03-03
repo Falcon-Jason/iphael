@@ -16,7 +16,7 @@ namespace iphael {
         NO_EVENT
     };
 
-    class EventLoopConcept;
+    class ExecutorConcept;
 
     /**
      * @class Event
@@ -30,7 +30,7 @@ namespace iphael {
         struct MultiBufferArgument;
 
     private:
-        EventLoopConcept *parent;
+        ExecutorConcept *parent;
         int fildes;
         EventMode mode;
         Function handler;
@@ -45,7 +45,7 @@ namespace iphael {
          * @param loop the parent(aka. owner) event loop of this event.
          * @param fildes the file descriptor handled by this event.
          */
-        Event(EventLoopConcept &loop, int fildes);
+        Event(ExecutorConcept &loop, int fildes);
 
         ~Event();
 
@@ -73,7 +73,7 @@ namespace iphael {
         /**
          * @return the parent(aka. owner) event loop of this event.
          */
-        EventLoopConcept &ParentLoop() {
+        ExecutorConcept &ParentLoop() {
             return *parent;
         }
 

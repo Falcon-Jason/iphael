@@ -5,7 +5,7 @@
   */
 
 #pragma once
-#include "core/EventLoopConcept.h"
+#include "core/ExecutorConcept.h"
 #include <atomic>
 #include <thread>
 #include <memory>
@@ -21,7 +21,7 @@ namespace iphael {
      * or as main event loop in one-loop-per-thread model.
      * This event loop can only run in one I/O thread.
      */
-    class EventLoop : public EventLoopConcept {
+    class EventLoop : public ExecutorConcept {
     protected:
         std::atomic_bool executing;
         std::thread::id threadId;

@@ -29,13 +29,13 @@ namespace iphael::coroutine {
     public:
         explicit TcpServer(TaskFunction task);
 
-        bool Start(EventLoopConcept &loop, const InetAddress &address) ;
+        bool Start(ExecutorConcept &loop, const InetAddress &address) ;
 
         void Stop();
 
         NODISCARD auto Started() const { return listener.Started(); }
 
-        EventLoopConcept &ParentLoop() { return listener.ParentLoop(); }
+        ExecutorConcept &ParentLoop() { return listener.ParentLoop(); }
 
     private:
         TcpConnection &addConnection(TcpConnection conn);

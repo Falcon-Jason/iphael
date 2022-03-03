@@ -12,7 +12,7 @@
 #include <fmt/format.h>
 
 namespace iphael::coroutine {
-    TcpConnection::TcpConnection(EventLoopConcept &loop, TcpSocket socket)
+    TcpConnection::TcpConnection(ExecutorConcept &loop, TcpSocket socket)
             : socket{std::move(socket)},
               event{new Event{loop, this->socket.Fildes()}},
               coroutine{nullptr} {

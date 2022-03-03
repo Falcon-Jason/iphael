@@ -28,11 +28,11 @@ namespace iphael::coroutine {
         Coroutine coroutine{nullptr};
 
     public:
-        TcpConnection(EventLoopConcept &loop, int fildes)
+        TcpConnection(ExecutorConcept &loop, int fildes)
                 : TcpConnection{loop, TcpSocket{fildes}} {
         }
 
-        TcpConnection(EventLoopConcept &loop, TcpSocket socket);
+        TcpConnection(ExecutorConcept &loop, TcpSocket socket);
 
         TcpConnection(TcpConnection &&rhs) noexcept = default;
 
