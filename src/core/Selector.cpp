@@ -24,14 +24,12 @@ namespace iphael {
         }
     }
 
-    static uint32_t EpollEvent(EventMode mode) {
+    static uint32_t EpollEvent(IOMode mode) {
         switch (mode) {
-            case EventMode::ASYNC_READ:
+            case IOMode::READ:
                 return EPOLLIN;
-            case EventMode::ASYNC_WRITE:
+            case IOMode::WRITE:
                 return EPOLLOUT;
-            case EventMode::ASYNC_ACCEPT:
-                return EPOLLIN;
             default:
                 return 0;
         }

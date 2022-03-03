@@ -58,7 +58,7 @@ namespace iphael::coroutine {
     }
 
     TcpListener::Awaitable TcpListener::Accept() {
-        event->SetAsyncWait(EventMode::ASYNC_ACCEPT);
+        event->SetAsyncWait(IOMode::READ);
         return Awaitable{this};
     }
 

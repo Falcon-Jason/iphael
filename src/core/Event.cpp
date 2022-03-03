@@ -9,10 +9,12 @@
 #include "core/EventLoop.h"
 
 namespace iphael {
+
     Event::Event(ExecutorConcept &loop, int fildes)
             : parent{&loop},
               fildes{fildes},
-              mode{EventMode::NO_EVENT},
+              ioMode{IOMode::EMPTY},
+              bufferMode{BufferMode::NO_BUFFER},
               handler{nullptr},
               index{-1},
               argument{new Argument{}} {
@@ -28,18 +30,21 @@ namespace iphael {
         return parent->UpdateEvent(this);
     }
 
-    void Event::SetAsyncWait(EventMode m) {
-        mode = m;
+    void Event::SetAsyncWait(IOMode m) {
+        ioMode = m;
+        bufferMode = BufferMode::AWAITING;
         argument->Set(nullptr);
     }
 
     void Event::SetAsyncReadSome(void *buffer, size_t length) {
-        mode = EventMode::ASYNC_READ;
+        ioMode = IOMode::READ;
+        bufferMode = BufferMode::SINGLE_BUFFER;
         argument->Set(buffer, length);
     }
 
     void Event::SetAsyncWrite(void *buffer, size_t length) {
-        this->mode = EventMode::ASYNC_WRITE;
+        this->ioMode = IOMode::WRITE;
+        bufferMode = BufferMode::SINGLE_BUFFER;
         argument->Set(buffer, length);
     }
 }

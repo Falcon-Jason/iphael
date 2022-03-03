@@ -18,8 +18,6 @@ namespace iphael {
 
     Event::MultiBufferArgument::~MultiBufferArgument() = default;
 
-//    Event::Argument::Argument() = default;
-
     void Event::Argument::Set(std::nullptr_t) {
         content.emplace<nullptr_t>();
     }

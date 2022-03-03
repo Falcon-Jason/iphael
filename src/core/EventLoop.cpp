@@ -37,7 +37,7 @@ namespace iphael {
             Event *event = selector->Wait();
             if (event == nullptr) { continue; }
 
-            if (event->EventArgument() == nullptr || processEvent(event)) {
+            if (processEvent(event)) {
                 event->Handle();
             } else {
                 selector->UpdateEvent(event);
@@ -49,11 +49,15 @@ namespace iphael {
     }
 
     bool EventLoop::processEvent(Event *event) {
-        switch (event->Mode()) {
-            case EventMode::ASYNC_READ:
+        switch (event->Mode() && event->BufMode()) {
+            case IOMode::READ && BufferMode::SINGLE_BUFFER:
                 return processRead(event);
-            case EventMode::ASYNC_WRITE:
+            case IOMode::WRITE && BufferMode::SINGLE_BUFFER:
                 return processWrite(event);
+            case IOMode::READ && BufferMode::MULTI_BUFFER:
+                // TODO: temporarily throughout
+            case IOMode::WRITE && BufferMode::MULTI_BUFFER:
+                // TODO: temporarily throughout
             default:
                 return true;
         }
@@ -61,6 +65,7 @@ namespace iphael {
 
     bool EventLoop::processRead(Event *event) {
         assert(InLoopThread());
+        assert(event->BufMode() == BufferMode::SINGLE_BUFFER); // TODO: MULTI_BUFFER not implemented
 
         auto *arg = event->EventArgument().Get<Event::SingleBufferArgument>();
         if (arg == nullptr) { return true; }
