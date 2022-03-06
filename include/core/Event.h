@@ -9,52 +9,51 @@
 #include <variant>
 
 namespace iphael {
-    enum class IOMode : int16_t {
+    enum class EventMode : int16_t {
         READ,
         WRITE,
         END,
         EMPTY = END,
     };
 
-    enum class BufferMode : int16_t {
+    enum class EventBufferMode : int16_t {
         AWAITING,
         SINGLE_BUFFER,
         MULTI_BUFFER,
         END,
-        NO_BUFFER = AWAITING
+        NOT_SUPPORTED = END
     };
 
-    constexpr int operator&&(IOMode ioMode, BufferMode bufferMode) {
-        return (int)(ioMode) * (int)(IOMode::END) + (int)(bufferMode);
-    }
+//    constexpr int operator&&(EventMode ioMode, EventBufferMode bufferMode) {
+//        return (int)(ioMode) * (int)(EventMode::END) + (int)(bufferMode);
+//    }
 
     class ExecutorConcept;
 
     /**
      * @class Event
      * The event to be handled by @class EventLoop; which references a file descriptor instead of owning it.
-     * It supports handling only one ioMode (read/write) at the same time.
+     * It supports handling only one mode (read/write) at the same time.
      */
     class Event : Noncopyable {
     public:
-        class Argument;
+        class Buffer;
         struct SingleBufferArgument;
         struct MultiBufferArgument;
 
     private:
         ExecutorConcept *parent;
         int fildes;
-        IOMode ioMode;
-        BufferMode bufferMode;
+        EventMode mode;
         Function handler;
         int index;
-        std::unique_ptr<Argument> argument;
+        std::unique_ptr<Buffer> buffer;
 
     public:
         /**
          * Create a new event.
-         * By default, this event's ioMode is EMPTY, and it has no handler.
-         * After created, this event's ioMode and handler should be set.
+         * By default, this event's mode is EMPTY, and it has no handler.
+         * After created, this event's mode and handler should be set.
          * @param loop the parent(aka. owner) event loop of this event.
          * @param fildes the file descriptor handled by this event.
          */
@@ -63,7 +62,7 @@ namespace iphael {
         ~Event();
 
         /**
-         * call the handler to handle this event.
+         * call the handler to handleEvent this event.
          */
         void Handle() {
             if (handler) { handler(); }
@@ -77,14 +76,10 @@ namespace iphael {
         }
 
         /**
-         * @return the IO ioMode of this event.
+         * @return the IO mode of this event.
          */
-        NODISCARD IOMode Mode() const {
-            return ioMode;
-        }
-
-        NODISCARD BufferMode BufMode() const {
-            return bufferMode;
+        NODISCARD EventMode Mode() const {
+            return mode;
         }
 
         /**
@@ -98,10 +93,10 @@ namespace iphael {
          * Set the m of event to reactor-style async wait.
          * Call handler when event of @param m triggered.
          */
-        void SetAsyncWait(IOMode m);
+        void SetAsyncWait(EventMode m);
 
         /**
-         * Set the ioMode of event to async read.
+         * Set the mode of event to async read.
          * Call handler when any length of data received
          * @param buffer where the read data saved
          * @param length the length of buffer
@@ -109,7 +104,7 @@ namespace iphael {
         void SetAsyncReadSome(void *buffer, size_t length);
 
         /**
-         * Set the ioMode of event to async write.
+         * Set the mode of event to async write.
          * Call handler when all data sent.
          * @param buffer the data to be sent
          * @param length the length of buffer.
@@ -117,12 +112,12 @@ namespace iphael {
         void SetAsyncWrite(void *buffer, size_t length);
 
         /**
-         * Set the ioMode of this event.
-         * @param value the ioMode to be set.
+         * Set the mode of this event.
+         * @param value the mode to be set.
          * @return the reference to this, for chain setting.
          */
-        Event &SetMode(IOMode value) {
-            this->ioMode = value;
+        Event &SetMode(EventMode value) {
+            this->mode = value;
             return *this;
         }
 
@@ -130,7 +125,7 @@ namespace iphael {
          * Set the handler of this event.
          * @param value the new handler to be set.
          * @return the reference to this, for chain setting.
-         * @note no copy operation when passing an rvalue as argument.
+         * @note no copy operation when passing an rvalue as buffer.
          */
         Event &SetHandler(Function value) {
             this->handler = std::move(value);
@@ -147,9 +142,14 @@ namespace iphael {
         /**
          * @note only available for core classes.
          */
-        Argument &EventArgument() {
-            return *argument;
+        Buffer &EventBuffer() {
+            return *buffer;
         }
+
+        /**
+         * @note only available for core classes
+         */
+        EventBufferMode BufferMode();
 
         /**
          * update this event to event loop

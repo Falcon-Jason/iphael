@@ -5,7 +5,7 @@
   */
 
 #include "core/Event.h"
-#include "core/EventArgument.h"
+#include "core/EventBuffer.h"
 #include "core/EventLoop.h"
 
 namespace iphael {
@@ -13,11 +13,10 @@ namespace iphael {
     Event::Event(ExecutorConcept &loop, int fildes)
             : parent{&loop},
               fildes{fildes},
-              ioMode{IOMode::EMPTY},
-              bufferMode{BufferMode::NO_BUFFER},
+              mode{EventMode::EMPTY},
               handler{nullptr},
               index{-1},
-              argument{new Argument{}} {
+              buffer{new Buffer{}} {
     }
 
     Event::~Event() {
@@ -26,25 +25,29 @@ namespace iphael {
         }
     }
 
+    EventBufferMode Event::BufferMode() {
+        return buffer ? buffer->mode : EventBufferMode::NOT_SUPPORTED;
+    }
+
     void Event::Update() {
         return parent->UpdateEvent(this);
     }
 
-    void Event::SetAsyncWait(IOMode m) {
-        ioMode = m;
-        bufferMode = BufferMode::AWAITING;
-        argument->Set(nullptr);
+    void Event::SetAsyncWait(EventMode m) {
+        mode = m;
+        buffer->mode = EventBufferMode::AWAITING;
+        buffer->Set(nullptr);
     }
 
-    void Event::SetAsyncReadSome(void *buffer, size_t length) {
-        ioMode = IOMode::READ;
-        bufferMode = BufferMode::SINGLE_BUFFER;
-        argument->Set(buffer, length);
+    void Event::SetAsyncReadSome(void *buf, size_t len) {
+        mode = EventMode::READ;
+        buffer->mode = EventBufferMode::SINGLE_BUFFER;
+        buffer->Set(buf, len);
     }
 
-    void Event::SetAsyncWrite(void *buffer, size_t length) {
-        this->ioMode = IOMode::WRITE;
-        bufferMode = BufferMode::SINGLE_BUFFER;
-        argument->Set(buffer, length);
+    void Event::SetAsyncWrite(void *buf, size_t len) {
+        this->mode = EventMode::WRITE;
+        buffer->mode = EventBufferMode::SINGLE_BUFFER;
+        buffer->Set(buf, len);
     }
 }

@@ -12,7 +12,7 @@
 namespace iphael::coroutine {
     /**
      * @class Coroutine
-     * RAII encapsulation of coroutine handle.
+     * RAII encapsulation of coroutineHandler handleEvent.
      */
     class Coroutine : Noncopyable {
     private:
@@ -48,13 +48,13 @@ namespace iphael::coroutine {
         }
 
         /**
-         * Resume and released this coroutine.
+         * Resume and released this coroutineHandler.
          * @note this will be null after resumed.
          */
         void Resume();
 
         /**
-         * Destroy this coroutine.
+         * Destroy this coroutineHandler.
          * @note this will be null after resumed.
          */
         void Destroy();

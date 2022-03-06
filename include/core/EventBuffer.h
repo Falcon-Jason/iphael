@@ -1,5 +1,5 @@
 /**
-  * @file EventArgument.h
+  * @file EventBuffer.h
   * @author Jason
   * @date 2022/3/4
   */
@@ -9,8 +9,14 @@
 #include <memory>
 
 namespace iphael {
-    class Event::Argument {
+    class Event::Buffer {
+    public:
+        friend class Event;
+        friend class EventLoop;
+
     private:
+        EventBufferMode mode{EventBufferMode::AWAITING};
+
         std::variant<
                 std::nullptr_t,
                 std::unique_ptr<SingleBufferArgument>,
@@ -18,11 +24,11 @@ namespace iphael {
         > content{nullptr};
 
     public:
-        Argument() = default;
+        Buffer() = default;
 
-        Argument(nullptr_t) : Argument() {}
+        Buffer(nullptr_t) : Buffer() {}
 
-        Argument(void *buffer, size_t length) {
+        Buffer(void *buffer, size_t length) {
             Set(buffer, length);
         }
 
@@ -31,19 +37,12 @@ namespace iphael {
         }
 
         /**
-         * @tparam T the type of content to be get
-         * @return The pointer to content if matches, or nullptr if not matched.
-         */
-        template<class T>
-        T *Get() { return std::get_if<std::unique_ptr<T>>(&content)->get(); }
-
-        /**
          * Set this as null
          */
         void Set(std::nullptr_t);
 
         /**
-         * Set this as a single buffer argument,
+         * Set this as a single buffer buffer,
          * for read, write operations
          * @param buffer the data to be read/written
          * @param length the length of buffer
@@ -51,14 +50,26 @@ namespace iphael {
         void Set(void *buffer, size_t length);
 
         /**
-         * @return the returned length of operation bind to this argument.
+         * @return the returned length of operation bind to this buffer.
          */
         ssize_t GetReturnedLength();
+
+        NODISCARD EventBufferMode Mode() const {
+            return mode;
+        }
+
+    private:
+        /**
+         * @tparam T the type of content to be get
+         * @return The pointer to content if matches, or nullptr if not matched.
+         */
+        template<class T>
+        T *Get() { return std::get_if<std::unique_ptr<T>>(&content)->get(); }
     };
 
     /**
      * @struct SingleBufferArgument
-     * argument for single buffer i/o (read/write)
+     * buffer for single buffer i/o (read/write)
      */
     struct Event::SingleBufferArgument {
         char *buffer;

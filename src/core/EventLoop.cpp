@@ -5,7 +5,7 @@
   */
 
 #include "core/Selector.h"
-#include "core/EventArgument.h"
+#include "core/EventBuffer.h"
 #include "core/Event.h"
 #include "core/EventLoop.h"
 #include <cassert>
@@ -48,26 +48,11 @@ namespace iphael {
         return 0;
     }
 
-    bool EventLoop::processEvent(Event *event) {
-        switch (event->Mode() && event->BufMode()) {
-            case IOMode::READ && BufferMode::SINGLE_BUFFER:
-                return processRead(event);
-            case IOMode::WRITE && BufferMode::SINGLE_BUFFER:
-                return processWrite(event);
-            case IOMode::READ && BufferMode::MULTI_BUFFER:
-                // TODO: temporarily throughout
-            case IOMode::WRITE && BufferMode::MULTI_BUFFER:
-                // TODO: temporarily throughout
-            default:
-                return true;
-        }
-    }
-
     bool EventLoop::processRead(Event *event) {
         assert(InLoopThread());
-        assert(event->BufMode() == BufferMode::SINGLE_BUFFER); // TODO: MULTI_BUFFER not implemented
+        assert(event->EventBuffer().Mode() == EventBufferMode::SINGLE_BUFFER); // TODO: MULTI_BUFFER not implemented
 
-        auto *arg = event->EventArgument().Get<Event::SingleBufferArgument>();
+        auto *arg = event->EventBuffer().Get<Event::SingleBufferArgument>();
         if (arg == nullptr) { return true; }
 
         arg->lengthR = read(
@@ -80,8 +65,9 @@ namespace iphael {
 
     bool EventLoop::processWrite(Event *event) {
         assert(InLoopThread());
+        assert(event->EventBuffer().Mode() == EventBufferMode::SINGLE_BUFFER); // TODO: MULTI_BUFFER not implemented
 
-        auto *arg = event->EventArgument().Get<Event::SingleBufferArgument>();
+        auto *arg = event->EventBuffer().Get<Event::SingleBufferArgument>();
         if (arg == nullptr) { return true; }
 
         ssize_t len = write(
@@ -92,5 +78,51 @@ namespace iphael {
         if (len <= 0) { return true; }
         arg->lengthR += len;
         return (arg->lengthR == arg->length);
+    }
+
+    bool EventLoop::processReadV(Event *event) {
+        assert(false); // TODO: NOT IMPLEMENTED
+    }
+
+    bool EventLoop::processWriteV(Event *event) {
+        assert(false); // TODO: NOT IMPLEMENTED
+    }
+
+    bool EventLoop::processEvent(Event *event) {
+        switch (event->EventBuffer().Mode()) {
+            case EventBufferMode::AWAITING: {
+                // process nothing in awaiting buffer-mode.
+                return true;
+            }
+
+            case EventBufferMode::SINGLE_BUFFER: {
+                switch (event->Mode()) {
+                    case EventMode::READ:
+                        return processRead(event);
+                    case EventMode::WRITE:
+                        return processWrite(event);
+                    default:
+                        // event must be either READ or WRITE
+                        assert(false);
+                }
+            }
+
+            case EventBufferMode::MULTI_BUFFER: {
+                switch (event->Mode()) {
+                    case EventMode::READ:
+                        return processReadV(event);
+                    case EventMode::WRITE:
+                        return processWriteV(event);
+                    default:
+                        // event must be either READ or WRITE
+                        assert(false);
+                }
+            }
+
+            default: {
+                // buffer-mode must be AWAITING, SINGLE_BUFFER or MULTI_BUFFER
+                assert(false);
+            }
+        }
     }
 }

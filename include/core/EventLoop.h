@@ -73,5 +73,9 @@ namespace iphael {
         bool processRead(Event *event);
 
         bool processWrite(Event *event);
+
+        bool processReadV(Event *event);
+
+        bool processWriteV(Event *event);
     };
 } // iphael
