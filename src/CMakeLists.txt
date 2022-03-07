@@ -1,9 +1,8 @@
 add_library(iphael
+        core/Event.cpp
         core/Selector.cpp
         core/EventLoop.cpp
         core/Signal.cpp
-        core/Event.cpp
-        core/EventBuffer.cpp
         net/InetAddress.cpp
         net/TcpSocket.cpp
         coroutine/Coroutine.cpp

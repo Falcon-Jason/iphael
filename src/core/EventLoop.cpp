@@ -5,7 +5,7 @@
   */
 
 #include "core/Selector.h"
-#include "core/EventBuffer.h"
+#include "core/EventArgument.h"
 #include "core/Event.h"
 #include "core/EventLoop.h"
 #include <cassert>
@@ -50,24 +50,24 @@ namespace iphael {
 
     bool EventLoop::processRead(Event *event) {
         assert(InLoopThread());
-        assert(event->EventBuffer().Mode() == EventBufferMode::SINGLE_BUFFER); // TODO: MULTI_BUFFER not implemented
 
-        auto *arg = event->EventBuffer().Get<Event::SingleBufferArgument>();
+        auto *arg = event->Argument();
         if (arg == nullptr) { return true; }
 
-        arg->lengthR = read(
+        ssize_t len = read(
                 event->Fildes(),
                 arg->buffer + arg->lengthR,
                 arg->length - arg->lengthR);
 
-        return true;
+        arg->lengthR += len;
+        if (!arg->strict || len <= 0) { return true; }
+        return (arg->lengthR == arg->length);
     }
 
     bool EventLoop::processWrite(Event *event) {
         assert(InLoopThread());
-        assert(event->EventBuffer().Mode() == EventBufferMode::SINGLE_BUFFER); // TODO: MULTI_BUFFER not implemented
 
-        auto *arg = event->EventBuffer().Get<Event::SingleBufferArgument>();
+        auto *arg = event->Argument();
         if (arg == nullptr) { return true; }
 
         ssize_t len = write(
@@ -75,54 +75,24 @@ namespace iphael {
                 arg->buffer + arg->lengthR,
                 arg->length - arg->lengthR);
 
-        if (len <= 0) { return true; }
         arg->lengthR += len;
+        if (!arg->strict || len <= 0) { return true; }
         return (arg->lengthR == arg->length);
     }
 
-    bool EventLoop::processReadV(Event *event) {
-        assert(false); // TODO: NOT IMPLEMENTED
-    }
-
-    bool EventLoop::processWriteV(Event *event) {
-        assert(false); // TODO: NOT IMPLEMENTED
-    }
-
     bool EventLoop::processEvent(Event *event) {
-        switch (event->EventBuffer().Mode()) {
-            case EventBufferMode::AWAITING: {
-                // process nothing in awaiting buffer-mode.
-                return true;
-            }
+        if (*event->Argument() == nullptr) {
+            return true;
+        }
 
-            case EventBufferMode::SINGLE_BUFFER: {
-                switch (event->Mode()) {
-                    case EventMode::READ:
-                        return processRead(event);
-                    case EventMode::WRITE:
-                        return processWrite(event);
-                    default:
-                        // event must be either READ or WRITE
-                        assert(false);
-                }
-            }
-
-            case EventBufferMode::MULTI_BUFFER: {
-                switch (event->Mode()) {
-                    case EventMode::READ:
-                        return processReadV(event);
-                    case EventMode::WRITE:
-                        return processWriteV(event);
-                    default:
-                        // event must be either READ or WRITE
-                        assert(false);
-                }
-            }
-
-            default: {
-                // buffer-mode must be AWAITING, SINGLE_BUFFER or MULTI_BUFFER
+        switch (event->Mode()) {
+            case EventMode::READ:
+                return processRead(event);
+            case EventMode::WRITE:
+                return processWrite(event);
+            default:
+                // event must be either READ or WRITE
                 assert(false);
-            }
         }
     }
 }

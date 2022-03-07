@@ -4,7 +4,7 @@
   * @date 2022/2/15
   */
 
-#include "core/EventBuffer.h"
+#include "core/EventArgument.h"
 #include "coroutine/TcpConnection.h"
 #include "coroutine/TcpServer.h"
 #include <sys/socket.h>
@@ -22,7 +22,7 @@ namespace iphael::coroutine {
     TcpConnection::~TcpConnection() = default;
 
     void TcpConnection::handleEvent() {
-        if (event->EventBuffer().GetReturnedLength() <= 0) {
+        if (event->Argument()->ReturnedLength() <= 0) {
             errorHandler();
         } else {
             coroutine.Resume();
@@ -46,7 +46,9 @@ namespace iphael::coroutine {
     }
 
     ssize_t TcpConnection::Awaitable::await_resume() const noexcept {
-        return conn->event->EventBuffer().GetReturnedLength();
+        auto len = conn->event->Argument()->ReturnedLength();
+        conn->event->Argument()->Set(nullptr);
+        return len;
     }
 
     void TcpConnection::Awaitable::await_suspend(std::coroutine_handle<> handle) {

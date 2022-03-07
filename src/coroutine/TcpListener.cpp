@@ -29,10 +29,6 @@ namespace iphael::coroutine {
         coroutine.Resume();
     }
 
-//    Task TcpListener::main() {
-//
-//    }
-
     TcpListener::Awaitable TcpListener::Accept() {
         event->SetAsyncWait(EventMode::READ);
         return Awaitable{this};

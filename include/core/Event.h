@@ -16,19 +16,8 @@ namespace iphael {
         EMPTY = END,
     };
 
-    enum class EventBufferMode : int16_t {
-        AWAITING,
-        SINGLE_BUFFER,
-        MULTI_BUFFER,
-        END,
-        NOT_SUPPORTED = END
-    };
-
-//    constexpr int operator&&(EventMode ioMode, EventBufferMode bufferMode) {
-//        return (int)(ioMode) * (int)(EventMode::END) + (int)(bufferMode);
-//    }
-
     class EventLoopConcept;
+    class EventArgument;
 
     /**
      * @class Event
@@ -37,9 +26,6 @@ namespace iphael {
      */
     class Event : Noncopyable {
     public:
-        class Buffer;
-        struct SingleBufferArgument;
-        struct MultiBufferArgument;
 
     private:
         EventLoopConcept *parent;
@@ -47,7 +33,7 @@ namespace iphael {
         EventMode mode;
         Function handler;
         int index;
-        std::unique_ptr<Buffer> buffer;
+        std::unique_ptr<EventArgument> buffer;
 
     public:
         /**
@@ -91,17 +77,33 @@ namespace iphael {
 
         /**
          * Set the m of event to reactor-style async wait.
-         * Call handler when event of @param m triggered.
+         * Call handler when event of @param mode triggered.
          */
-        void SetAsyncWait(EventMode m);
+        void SetAsyncWait(EventMode mode);
 
         /**
          * Set the mode of event to async read.
-         * Call handler when any length of data received
+         * Call handler when any length of data received.
          * @param buffer where the read data saved
          * @param length the length of buffer
          */
         void SetAsyncReadSome(void *buffer, size_t length);
+
+        /**
+         * Set the mode of event to async read.
+         * Call handler when all data received.
+         * @param buffer where the read data saved
+         * @param length the length of buffer
+         */
+        void SetAsyncRead(void *buffer, size_t length);
+
+        /**
+         * Set the mode of event to async write.
+         * Call handler when any length of data received.
+         * @param buffer the data to be sent
+         * @param length the length of buffer.
+         */
+        void SetAsyncWriteSome(void *buffer, size_t length);
 
         /**
          * Set the mode of event to async write.
@@ -142,14 +144,9 @@ namespace iphael {
         /**
          * @note only available for core classes.
          */
-        Buffer &EventBuffer() {
-            return *buffer;
+        EventArgument *Argument() {
+            return buffer.get();
         }
-
-        /**
-         * @note only available for core classes
-         */
-        EventBufferMode BufferMode();
 
         /**
          * update this event to event loop
