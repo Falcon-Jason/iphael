@@ -29,11 +29,11 @@ namespace iphael::coroutine {
         Function errorHandler{nullptr};
 
     public:
-        TcpConnection(ExecutorConcept &loop, int fildes)
+        TcpConnection(EventLoopConcept &loop, int fildes)
                 : TcpConnection{loop, TcpSocket{fildes}} {
         }
 
-        TcpConnection(ExecutorConcept &loop, TcpSocket socket);
+        TcpConnection(EventLoopConcept &loop, TcpSocket socket);
 
         TcpConnection(TcpConnection &&rhs) noexcept = default;
 

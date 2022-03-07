@@ -23,13 +23,13 @@ namespace iphael::coroutine {
         using ListenerTask = std::function<Task()>;
 
     private:
-        ExecutorConcept &loop;
+        EventLoopConcept &loop;
         ConnectionSet connectionSet;
         TcpListener listener;
         ConnectionTask connectionTask;
 
     public:
-        TcpServer(ExecutorConcept &loop, const InetAddress& address);
+        TcpServer(EventLoopConcept &loop, const InetAddress& address);
 
         ~TcpServer();
 

@@ -14,7 +14,7 @@
 
 namespace iphael {
     class Event;
-    class ExecutorConcept;
+    class EventLoopConcept;
     class InetAddress;
 
     namespace coroutine {
@@ -29,19 +29,19 @@ namespace iphael {
             Coroutine coroutine{nullptr};
 
         public:
-            TcpListener(ExecutorConcept &loop, TcpSocket sock);
+            TcpListener(EventLoopConcept &loop, TcpSocket sock);
 
-            TcpListener(ExecutorConcept &loop, int fildes)
+            TcpListener(EventLoopConcept &loop, int fildes)
                     : TcpListener{loop, TcpSocket{fildes}} {
             }
 
-            TcpListener(ExecutorConcept& loop, const InetAddress& address)
+            TcpListener(EventLoopConcept& loop, const InetAddress& address)
                     : TcpListener{loop, TcpSocket::Listen(address)} {
             }
 
             NODISCARD int Fildes() const;
 
-            ExecutorConcept &ParentLoop();
+            EventLoopConcept &ParentLoop();
 
             Awaitable Accept();
 

@@ -1,5 +1,5 @@
 /**
-  * @file ExecutorConcept.h
+  * @file EventLoopConcept.h
   * @author Jason
   * @date 2022/3/4
   */
@@ -9,9 +9,9 @@
 namespace iphael {
     class Event;
 
-    class ExecutorConcept {
+    class EventLoopConcept {
     public:
-        virtual ~ExecutorConcept() = default;
+        virtual ~EventLoopConcept() = default;
 
         /**
          * Update and activate the event.

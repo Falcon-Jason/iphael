@@ -10,7 +10,7 @@
 
 namespace iphael {
 
-    Event::Event(ExecutorConcept &loop, int fildes)
+    Event::Event(EventLoopConcept &loop, int fildes)
             : parent{&loop},
               fildes{fildes},
               mode{EventMode::EMPTY},

@@ -11,7 +11,7 @@
 #include <cassert>
 
 namespace iphael::coroutine {
-    TcpListener::TcpListener(ExecutorConcept &loop, TcpSocket sock)
+    TcpListener::TcpListener(EventLoopConcept &loop, TcpSocket sock)
             : socket{std::move(sock)},
               event{new Event{loop, socket.Fildes()}} {
         event->SetHandler([this] { handleEvent(); } );
@@ -21,7 +21,7 @@ namespace iphael::coroutine {
         return socket.Fildes();
     }
 
-    ExecutorConcept &TcpListener::ParentLoop() {
+    EventLoopConcept &TcpListener::ParentLoop() {
         return event->ParentLoop();
     }
 

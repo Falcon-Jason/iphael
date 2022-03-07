@@ -7,7 +7,7 @@
 #include "coroutine/TcpServer.h"
 
 namespace iphael::coroutine {
-    TcpServer::TcpServer(ExecutorConcept &loop, const InetAddress &address)
+    TcpServer::TcpServer(EventLoopConcept &loop, const InetAddress &address)
             : loop{loop},
               connectionSet{},
               listener{loop, address} {
