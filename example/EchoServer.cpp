@@ -1,34 +1,36 @@
 /**
-  * @file EchoServer.cpp
+  * @file TcpServer.cpp
   * @author jason
   * @date 2022/2/28
   */
+#include <map>
+#include <fmt/format.h>
+#include "core/Signal.h"
 #include "core/EventLoop.h"
 #include "net/InetAddress.h"
 #include "coroutine/TcpConnection.h"
+#include "coroutine/TcpListener.h"
 #include "coroutine/TcpServer.h"
 
 using namespace iphael;
+using namespace iphael::coroutine;
 
-coroutine::Task ConnectionTask(coroutine::TcpConnection &conn) {
-    char buffer[4096];
-
-    while (true) {
-        ssize_t len = co_await conn.Read(buffer, sizeof(buffer));
-        co_await conn.Write(buffer, len);
-    }
-}
 
 int main() {
     EventLoop loop;
 
-    coroutine::TcpServer server{ConnectionTask};
-    server.Start(loop, InetAddress{1234});
+    TcpServer server(loop, InetAddress{1234});
 
-    std::thread{[&] {
-        getchar();
-        loop.Shutdown();
-    }}.detach();
+    server.SetConnectionTask(
+            [] (TcpConnection &conn) -> Task {
+                char buffer[4096];
 
+                while (true) {
+                    ssize_t len = co_await conn.Read(buffer, sizeof(buffer));
+                    co_await conn.Write(buffer, len);
+                }
+            });
+
+    Signal(SIGTERM, [&loop] { loop.Shutdown(); } );
     return loop.Execute();
 }

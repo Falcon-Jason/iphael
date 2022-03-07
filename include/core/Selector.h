@@ -40,7 +40,7 @@ namespace iphael {
         void UpdateEvent(Event *event);
 
         /**
-         * Remove the event from selector
+         * remove the event from selector
          * @param event the event to be removed
          */
         void RemoveEvent(Event *event);

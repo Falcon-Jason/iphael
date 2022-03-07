@@ -6,6 +6,7 @@
 
 #pragma once
 #include "Utility.h"
+#include "net/TcpSocket.h"
 #include "coroutine/Task.h"
 #include "coroutine/Coroutine.h"
 #include <functional>
@@ -15,7 +16,6 @@ namespace iphael {
     class Event;
     class ExecutorConcept;
     class InetAddress;
-    class TcpSocket;
 
     namespace coroutine {
         class TcpListener : Noncopyable {
@@ -24,22 +24,19 @@ namespace iphael {
             using Callback = std::function<void(TcpSocket)>;
 
         private:
-            std::unique_ptr<TcpSocket> socket{nullptr};
+            TcpSocket socket{nullptr};
             std::unique_ptr<Event> event{nullptr};
             Coroutine coroutine{nullptr};
-            Callback callback{nullptr};
 
         public:
-            explicit TcpListener(Callback cb)
-                    : callback{std::move(cb)} {
+            TcpListener(ExecutorConcept &loop, TcpSocket sock);
+
+            TcpListener(ExecutorConcept &loop, int fildes)
+                    : TcpListener{loop, TcpSocket{fildes}} {
             }
 
-            bool Start(ExecutorConcept& loop, const InetAddress& address);
-
-            void Stop();
-
-            NODISCARD bool Started() const {
-                return socket != nullptr;
+            TcpListener(ExecutorConcept& loop, const InetAddress& address)
+                    : TcpListener{loop, TcpSocket::Listen(address)} {
             }
 
             NODISCARD int Fildes() const;
@@ -49,8 +46,6 @@ namespace iphael {
             Awaitable Accept();
 
         private:
-            Task main();
-
             void handleEvent();
         };
 
@@ -63,7 +58,7 @@ namespace iphael {
         public:
             friend class TcpListener;
 
-            bool await_ready() const { return false; }
+            NODISCARD bool await_ready() const { return false; }
 
             NODISCARD TcpSocket await_resume() const noexcept;
 

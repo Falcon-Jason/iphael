@@ -11,28 +11,14 @@
 #include <cassert>
 
 namespace iphael::coroutine {
-    bool TcpListener::Start(ExecutorConcept &loop, const InetAddress &address) {
-        assert(!Started());
-
-        socket = std::make_unique<TcpSocket>(TcpSocket::Listen(address));
-        if (socket == nullptr || *socket == nullptr) {
-            return false;
-        }
-
-        event = std::make_unique<Event>(loop, socket->Fildes());
-        event->SetHandler([this] { handleEvent(); });
-
-        main();
-        return true;
-    }
-
-    void TcpListener::Stop() {
-        event = nullptr;
-        socket->Close();
+    TcpListener::TcpListener(ExecutorConcept &loop, TcpSocket sock)
+            : socket{std::move(sock)},
+              event{new Event{loop, socket.Fildes()}} {
+        event->SetHandler([this] { handleEvent(); } );
     }
 
     int TcpListener::Fildes() const {
-        return socket == nullptr ? -1 : socket->Fildes();
+        return socket.Fildes();
     }
 
     ExecutorConcept &TcpListener::ParentLoop() {
@@ -40,25 +26,15 @@ namespace iphael::coroutine {
     }
 
     void TcpListener::handleEvent() {
-        if (coroutine) {
-            coroutine.Resume();
-        }
+        coroutine.Resume();
     }
 
-    Task TcpListener::main() {
-        while (true) {
-            auto sock = co_await Accept();
-            if (sock == nullptr) {
-                Stop();
-                co_return;
-            } else {
-                callback(std::move(sock));
-            }
-        }
-    }
+//    Task TcpListener::main() {
+//
+//    }
 
     TcpListener::Awaitable TcpListener::Accept() {
-        event->SetAsyncWait(IOMode::READ);
+        event->SetAsyncWait(EventMode::READ);
         return Awaitable{this};
     }
 
@@ -72,6 +48,6 @@ namespace iphael::coroutine {
     }
 
     TcpSocket TcpListener::Awaitable::await_resume() const noexcept {
-        return TcpSocket::Accept(*listener->socket);
+        return TcpSocket::Accept(listener->socket);
     }
 }

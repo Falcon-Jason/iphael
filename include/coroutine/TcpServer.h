@@ -18,32 +18,32 @@
 namespace iphael::coroutine {
     class TcpServer {
     public:
-        using ConnectionSet = std::map<int, TcpConnection>;
-        using TaskFunction = std::function<Task(TcpConnection & )>;
+        using ConnectionSet = std::map<int, TcpConnectionPtr>;
+        using ConnectionTask = std::function<Task(TcpConnection &)>;
+        using ListenerTask = std::function<Task()>;
 
     private:
-        TcpListener listener;
+        ExecutorConcept &loop;
         ConnectionSet connectionSet;
-        TaskFunction task;
+        TcpListener listener;
+        ConnectionTask connectionTask;
 
     public:
-        explicit TcpServer(TaskFunction task);
+        TcpServer(ExecutorConcept &loop, const InetAddress& address);
 
-        bool Start(ExecutorConcept &loop, const InetAddress &address) ;
+        ~TcpServer();
 
-        void Stop();
+        void SetConnectionTask(ConnectionTask task) {
+            connectionTask = std::move(task);
+        }
 
-        NODISCARD auto Started() const { return listener.Started(); }
+        TcpConnection &Emplace(TcpSocket socket);
 
-        ExecutorConcept &ParentLoop() { return listener.ParentLoop(); }
+        void Remove(int fildes);
 
     private:
-        TcpConnection &addConnection(TcpConnection conn);
+        Task listenerTask();
 
-        void removeConnection(TcpConnection &conn);
 
-        void handleMessage(TcpConnection &conn);
-
-        void handleConnection(TcpSocket socket);
     };
 } // iphael

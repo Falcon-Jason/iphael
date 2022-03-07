@@ -7,6 +7,7 @@
 #pragma once
 
 #include <functional>
+#include <csignal>
 
 namespace iphael {
     void Signal(int signalNumber, std::function<void()> signalHandler);

@@ -61,7 +61,7 @@ namespace iphael {
         void UpdateEvent(Event *event) override;
 
         /**
-         * Remove the given event from current event-loop.
+         * remove the given event from current event-loop.
          * Should be called before the event is destroyed.
          * @param event the event to be removed
          */

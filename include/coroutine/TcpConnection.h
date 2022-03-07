@@ -26,6 +26,7 @@ namespace iphael::coroutine {
         TcpSocket socket{nullptr};
         std::unique_ptr<Event> event{nullptr};
         Coroutine coroutine{nullptr};
+        Function errorHandler{nullptr};
 
     public:
         TcpConnection(ExecutorConcept &loop, int fildes)
@@ -38,8 +39,8 @@ namespace iphael::coroutine {
 
         ~TcpConnection();
 
-        void SetHandler(Function handler) {
-            event->SetHandler(std::move(handler));
+        void SetErrorHandler(Function handler) {
+            errorHandler = std::move(handler);
         }
 
         int Fildes() { return socket.Fildes(); }
@@ -47,6 +48,9 @@ namespace iphael::coroutine {
         Awaitable Read(void *buffer, size_t length);
 
         Awaitable Write(void *buffer, size_t length);
+
+    private:
+        void handleEvent();
     };
 
     class TcpConnection::Awaitable {
@@ -57,7 +61,7 @@ namespace iphael::coroutine {
     public:
         friend class TcpConnection;
 
-        static bool await_ready() { return false; }
+        NODISCARD bool await_ready() { return false; }
 
         NODISCARD ssize_t await_resume() const noexcept;
 
