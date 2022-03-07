@@ -15,10 +15,8 @@ namespace iphael::coroutine {
     }
 
     TcpServer::~TcpServer() {
-        if (!connectionSet.empty()) {
-            for (auto &it : connectionSet) {
-                Remove(it.first);
-            }
+        while (!connectionSet.empty()) {
+            Remove(connectionSet.begin()->first);
         }
     }
 

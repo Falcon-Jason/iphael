@@ -31,6 +31,11 @@ int main() {
                 }
             });
 
-    Signal(SIGTERM, [&loop] { loop.Shutdown(); } );
+    std::thread([&loop] {
+        getchar();
+        loop.Shutdown();
+    }).detach();
+
+//    Signal(SIGTERM, [&loop] { loop.Shutdown(); } );
     return loop.Execute();
 }
