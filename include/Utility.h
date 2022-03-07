@@ -8,11 +8,13 @@
 
 #include <functional>
 #include <thread>
+#include <mutex>
 #include <cstdlib>
 #define NODISCARD [[nodiscard]]
 
 namespace iphael {
     using Function = std::function<void()>;
+    using LockGuard = std::lock_guard<std::mutex>;
 
     class Noncopyable {
     public:

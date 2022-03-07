@@ -10,29 +10,49 @@
 #include "core/EventLoop.h"
 #include <cassert>
 #include <sys/socket.h>
+#include <sys/eventfd.h>
+
+#define RUN_IN_LOOP(func, ...) RunInLoop()
 
 namespace iphael {
     EventLoop::EventLoop()
                 : executing{false},
                   threadId{std::this_thread::get_id()},
-                  selector{new Selector{}} {
+                  selector{new Selector{}},
+                  wakeupFildes{-1},
+                  wakeupEvent{nullptr} {
+        wakeupFildes = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+        if (wakeupFildes < 0) { return; }
+
+        wakeupEvent = std::make_unique<Event>(*this, wakeupFildes);
+        wakeupEvent->SetHandler([this] { handleWakeup(); });
     }
 
-    EventLoop::~EventLoop() = default;
+    EventLoop::~EventLoop() {
+        close(wakeupFildes);
+    }
 
     void EventLoop::UpdateEvent(Event *event) {
-        return selector->UpdateEvent(event);
+        RunInLoop([this, event] {
+            selector->UpdateEvent(event);
+        });
     }
 
     void EventLoop::RemoveEvent(Event *event) {
-        return selector->RemoveEvent(event);
+        RunInLoop([this, event] {
+            selector->RemoveEvent(event);
+        });
     }
 
     int EventLoop::Execute() {
+        assert(wakeupFildes >= 0);
         assert(executing == false);
         assert(InLoopThread());
 
         executing = true;
+        wakeupEvent->SetAsyncWait(EventMode::READ);
+        wakeupEvent->Update();
+
         while (executing) {
             Event *event = selector->Wait();
             if (event == nullptr) { continue; }
@@ -46,6 +66,39 @@ namespace iphael {
             if (selector->Empty()) { executing = false; }
         }
         return 0;
+    }
+
+    void EventLoop::RunInLoop(Function function) {
+        if (InLoopThread()) {
+            function();
+        } else {
+            queue(std::move(function));
+        }
+    }
+
+    void EventLoop::queue(Function function) {
+        LockGuard guard{mutex};
+        submittedFunctions.emplace_back(std::move(function));
+        wakeup();
+    }
+
+    void EventLoop::handleWakeup() {
+        eventfd_t value;
+        eventfd_read(wakeupFildes, &value);
+        assert(value != 0);
+
+        auto functions = [this] {
+            LockGuard guard{mutex};
+            return std::move(submittedFunctions);
+        }();
+
+        for(auto &func : functions) {
+            func();
+        }
+    }
+
+    void EventLoop::wakeup() {
+        eventfd_write(wakeupFildes, 1);
     }
 
     bool EventLoop::processRead(Event *event) {
