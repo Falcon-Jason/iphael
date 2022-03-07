@@ -19,7 +19,9 @@ namespace iphael {
         SetAddress(addr);
     }
 
-    InetAddress::InetAddress(uint16_t port) : InetAddress{"0.0.0.0", port} {
+    InetAddress::InetAddress(uint16_t port) : InetAddress{} {
+        SetPort(port);
+        address.sin_addr.s_addr = INADDR_ANY;
     }
 
     std::string InetAddress::ToString() const {
