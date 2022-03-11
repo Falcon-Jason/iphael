@@ -6,7 +6,6 @@
 
 #pragma once
 #include "event/Event.h"
-#include "coro/Task.h"
 #include "coro/Coroutine.h"
 #include "net/TcpSocket.h"
 
@@ -23,7 +22,6 @@ namespace iphael {
         TcpSocket socket{nullptr};
         std::unique_ptr<Event> event{nullptr};
         coro::Coroutine coroutine{nullptr};
-        Function errorHandler{nullptr};
 
     public:
         TcpConnection(EventLoopConcept &loop, int fildes)
@@ -35,10 +33,6 @@ namespace iphael {
         TcpConnection(TcpConnection &&rhs) noexcept = default;
 
         ~TcpConnection();
-
-        void SetErrorHandler(Function handler) {
-            errorHandler = std::move(handler);
-        }
 
         int Fildes() { return socket.Fildes(); }
 
@@ -75,7 +69,7 @@ namespace iphael {
 
         NODISCARD ssize_t await_resume() const noexcept;
 
-        void await_suspend(std::coroutine_handle<> handle);
+        void await_suspend(coro::Coroutine::Handle handle);
     };
 
     using TcpConnectionPtr = std::unique_ptr<TcpConnection>;

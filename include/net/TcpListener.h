@@ -8,7 +8,6 @@
 #include <functional>
 #include <memory>
 #include "Utility.h"
-#include "coro/Task.h"
 #include "coro/Coroutine.h"
 #include "net/TcpSocket.h"
 
@@ -61,6 +60,6 @@ namespace iphael {
 
         NODISCARD TcpSocket await_resume() const noexcept;
 
-        void await_suspend(std::coroutine_handle<> handle);
+        void await_suspend(coro::Coroutine::Handle handle);
     };
 } // iphael

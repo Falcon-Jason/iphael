@@ -24,11 +24,7 @@ namespace iphael {
 
     void TcpConnection::handleEvent() {
         ParentLoop().RunInLoop([this] {
-            if (event->Argument()->ReturnedLength() <= 0) {
-                errorHandler();
-            } else {
                 coroutine.Resume();
-            }
         });
     }
 
@@ -60,7 +56,7 @@ namespace iphael {
               useStrict{useStrict} {
     }
 
-    void TcpConnection::Awaitable::await_suspend(std::coroutine_handle<> handle) {
+    void TcpConnection::Awaitable::await_suspend(coro::Coroutine::Handle handle) {
         conn->ParentLoop().RunInLoop( [this, handle] () mutable {
             conn->coroutine = std::move(handle);
             conn->event->EnableAsyncEvent(mode, buffer, length, useStrict);

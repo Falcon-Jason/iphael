@@ -26,28 +26,38 @@ public:
             : loop{loop},
               connections{},
               listener{loop, address} {
-        listenerTask();
+
+        Coroutine::Spawn(loop, [this] {
+            return listenerTask();
+        });
     }
 
 private:
-    Task listenerTask() {
+    Coroutine listenerTask() {
         while (true) {
             auto sock = co_await listener.Accept();
             if (sock == nullptr) {
-                continue;
+                co_return;
             } else {
                 auto &conn = connections.Emplace(loop, std::move(sock));
-                connectionTask(conn);
+
+                Coroutine::Spawn(loop, [this, &conn] {
+                    return connectionTask(conn);
+                }, [this, &conn] {
+                    connections.Remove(conn);
+                });
             }
         }
     }
 
-    Task connectionTask(TcpConnection &conn) {
+    Coroutine connectionTask(TcpConnection &conn) {
         char buffer[4096];
 
         while (true) {
             ssize_t len = co_await conn.ReadSome(buffer, sizeof(buffer));
-            co_await conn.Write(buffer, len);
+            if (len <= 0) { co_return ; }
+
+            if (co_await conn.Write(buffer, len) < 0) { co_return; }
         }
     }
 };

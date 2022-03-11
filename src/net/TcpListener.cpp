@@ -27,7 +27,9 @@ namespace iphael {
     }
 
     void TcpListener::handleEvent() {
-        ParentLoop().RunInLoop([this] { coroutine.Resume(); });
+        ParentLoop().RunInLoop([this] {
+            coroutine.Resume();
+        });
     }
 
     TcpListener::Awaitable TcpListener::Accept() {
@@ -38,7 +40,7 @@ namespace iphael {
             : listener{listener} {
     }
 
-    void TcpListener::Awaitable::await_suspend(std::coroutine_handle<> handle) {
+    void TcpListener::Awaitable::await_suspend(coro::Coroutine::Handle handle) {
         listener->ParentLoop().RunInLoop([this, handle] () mutable {
             listener->coroutine = std::move(handle);
             listener->event->EnableAsyncEvent(EventMode::READ);

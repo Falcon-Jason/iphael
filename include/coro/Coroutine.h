@@ -9,27 +9,40 @@
 #include "Utility.h"
 #include <coroutine>
 
+namespace iphael {
+    class EventLoopConcept;
+}
+
 namespace iphael::coro {
     /**
      * @class Coroutine
      * RAII encapsulation of coroutineHandler handleEvent.
      */
     class Coroutine : Noncopyable {
+    public:
+        class Promise;
+
+        using Handle = std::coroutine_handle<Promise>;
+
+        using Function = std::function<Coroutine()>;
+
+        using promise_type = Promise;
+
     private:
-        std::coroutine_handle<> handle{nullptr};
+        Handle handle{nullptr};
 
     public:
         Coroutine() = default;
 
         Coroutine(nullptr_t) : Coroutine{} {}
 
-        explicit Coroutine(std::coroutine_handle<> &&handle) noexcept;
+        explicit Coroutine(Handle handle) noexcept;
 
         Coroutine(Coroutine &&rhs) noexcept;
 
         ~Coroutine() { Destroy(); }
 
-        Coroutine &operator=(std::coroutine_handle<> &&handle) noexcept;
+        Coroutine &operator=(Handle &&handle) noexcept;
 
         Coroutine &operator=(Coroutine &&rhs) noexcept;
 
@@ -58,5 +71,33 @@ namespace iphael::coro {
          * @note this will be null after resumed.
          */
         void Destroy();
+
+        Handle Release();
+
+        static void Spawn(EventLoopConcept &loop, const Coroutine::Function& func, iphael::Function afterReturned = nullptr);
+    };
+
+    class Coroutine::Promise {
+    public:
+        friend class Coroutine;
+
+    private:
+        iphael::Function afterReturned{};
+        EventLoopConcept *loop;
+
+    public:
+        auto get_return_object() {
+            return Coroutine{Handle::from_promise(*this)};
+        }
+
+        auto initial_suspend() noexcept { return std::suspend_always{}; }
+
+        auto final_suspend() noexcept { return std::suspend_never{}; }
+
+        void unhandled_exception() { std::terminate(); }
+
+        void return_void() {
+            if (afterReturned != nullptr) { afterReturned(); }
+        }
     };
 } // iphael::coro

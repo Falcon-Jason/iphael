@@ -19,7 +19,6 @@ namespace iphael {
         fmt::print("Emplaced connection {}\n", fildes);
 
         auto connPtr = std::make_unique<TcpConnection>(loop, std::move(sock));
-        connPtr->SetErrorHandler([this, fildes] { Remove(fildes); } );
 
         content.emplace(fildes, std::move(connPtr));
         return *content.at(fildes);

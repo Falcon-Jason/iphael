@@ -6,19 +6,19 @@
 
 #include "coro/Coroutine.h"
 
+#include "event/EventLoopConcept.h"
 #include <cassert>
 
 namespace iphael::coro {
-    Coroutine::Coroutine(std::coroutine_handle<> &&coroutineHandle) noexcept
+    Coroutine::Coroutine(Coroutine::Handle coroutineHandle) noexcept
             : handle{coroutineHandle} {
-        coroutineHandle = nullptr;
     }
 
     Coroutine::Coroutine(Coroutine &&rhs) noexcept
             : Coroutine{std::move(rhs.handle)} {
     }
 
-    Coroutine &Coroutine::operator=(std::coroutine_handle<> &&coroutineHandle) noexcept {
+    Coroutine &Coroutine::operator=(Coroutine::Handle &&coroutineHandle) noexcept {
         assert(handle != coroutineHandle);
 
         Destroy();
@@ -43,9 +43,31 @@ namespace iphael::coro {
         }
     }
 
-    void Coroutine::Resume() {
-        auto coroutineHandle = handle;
+    Coroutine::Handle Coroutine::Release() {
+        auto h = handle;
         handle = nullptr;
-        return coroutineHandle.resume();
+        return h;
+    }
+
+    void Coroutine::Resume() {
+        auto h = Release();
+
+        if (auto &loop = h.promise().loop; loop != nullptr) {
+            loop->RunInLoop([handle = h] { handle.resume(); });
+        } else {
+            h.resume();
+        }
+    }
+
+    void Coroutine::Spawn(EventLoopConcept &loop, const Coroutine::Function& func, iphael::Function afterReturned) {
+        auto coro = func();
+
+        auto &promise = coro.handle.promise();
+        promise.loop = &loop;
+        promise.afterReturned = std::move(afterReturned);
+
+        promise.loop->RunInLoop([ch = coro.Release()] () mutable {
+            Coroutine{ch}.Resume();
+        });
     }
 } // iphael::coro
