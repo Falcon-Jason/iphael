@@ -50,7 +50,7 @@ namespace iphael {
         void handleEvent();
     };
 
-    // created and running in coroutine's event loop
+    // created and running in coroutine's event listenerLoop
     class TcpConnection::Awaitable {
         TcpConnection *conn;
         void *buffer;

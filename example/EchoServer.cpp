@@ -17,19 +17,29 @@ using namespace iphael::coro;
 
 class EchoServer {
 private:
-    EventLoopConcept &loop;
+    EventLoopConcept &listenerLoop;
+    std::unique_ptr<EventLoop> connLoop;
     TcpListener listener;
     TcpConnectionSet connections;
 
 public:
     EchoServer(EventLoopConcept &loop, const InetAddress& address)
-            : loop{loop},
+            : listenerLoop{loop},
               connections{},
               listener{loop, address} {
+
+        std::thread{[this] {
+            connLoop = std::make_unique<EventLoop>();
+            connLoop->Execute();
+        }}.detach();
 
         Coroutine::Spawn(loop, [this] {
             return listenerTask();
         });
+    }
+
+    ~EchoServer() {
+        connLoop->Shutdown();
     }
 
 private:
@@ -39,9 +49,9 @@ private:
             if (sock == nullptr) {
                 co_return;
             } else {
-                auto &conn = connections.Emplace(loop, std::move(sock));
+                auto &conn = connections.Emplace(listenerLoop, std::move(sock));
 
-                Coroutine::Spawn(loop, [this, &conn] {
+                Coroutine::Spawn(*connLoop, [this, &conn] {
                     return connectionTask(conn);
                 }, [this, &conn] {
                     connections.Remove(conn);

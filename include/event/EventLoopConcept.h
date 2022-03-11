@@ -21,14 +21,14 @@ namespace iphael {
         virtual void UpdateEvent(Event *event) = 0;
 
         /**
-         * remove the given event from current event-loop.
+         * remove the given event from current event-listenerLoop.
          * Should be called before the event is destroyed.
          * @param event the event to be removed
          */
         virtual void RemoveEvent(Event *event) = 0;
 
         /**
-         * Run @param function in the thread owned by this loop.
+         * Run @param function in the thread owned by this listenerLoop.
          * If caller is running at the same thread, call @param function directly.
          * Otherwise, send @param function to this and wakeup.
          */

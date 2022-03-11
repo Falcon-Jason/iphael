@@ -40,7 +40,7 @@ namespace iphael {
          * Create a new event.
          * By default, this event's mode is EMPTY, and it has no handler.
          * After created, this event's mode and handler should be set.
-         * @param loop the parent(aka. owner) event loop of this event.
+         * @param loop the parent(aka. owner) event listenerLoop of this event.
          * @param fildes the file descriptor handled by this event.
          */
         Event(EventLoopConcept &loop, int fildes);
@@ -69,7 +69,7 @@ namespace iphael {
         }
 
         /**
-         * @return the parent(aka. owner) event loop of this event.
+         * @return the parent(aka. owner) event listenerLoop of this event.
          */
         EventLoopConcept &ParentLoop() {
             return *parent;
@@ -132,7 +132,7 @@ namespace iphael {
         }
 
         /**
-         * update this event to event loop
+         * update this event to event listenerLoop
          * @note call this function after finished handling.
          */
         void Update();
