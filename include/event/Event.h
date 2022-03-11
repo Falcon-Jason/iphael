@@ -17,7 +17,7 @@ namespace iphael {
     };
 
     class EventLoopConcept;
-    class EventArgument;
+    class EventPromise;
 
     /**
      * @class Event
@@ -33,7 +33,7 @@ namespace iphael {
         EventMode mode;
         Function handler;
         int index;
-        std::unique_ptr<EventArgument> buffer;
+        std::unique_ptr<EventPromise> buffer;
 
     public:
         /**
@@ -127,7 +127,7 @@ namespace iphael {
         /**
          * @note only available for event module.
          */
-        EventArgument *Argument() {
+        EventPromise *Argument() {
             return buffer.get();
         }
 

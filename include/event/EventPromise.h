@@ -9,7 +9,7 @@
 #include "event/Event.h"
 
 namespace iphael {
-    class EventArgument {
+    class EventPromise {
     public:
         friend class Event;
         friend class EventLoop;
@@ -21,11 +21,11 @@ namespace iphael {
         bool strict{false};
 
     public:
-        EventArgument() = default;
+        EventPromise() = default;
 
-        EventArgument(nullptr_t) : EventArgument{} {}
+        EventPromise(nullptr_t) : EventPromise{} {}
 
-        EventArgument(void *buffer, size_t length, bool strict) {
+        EventPromise(void *buffer, size_t length, bool strict) {
             Set(buffer, length, strict);
         }
 

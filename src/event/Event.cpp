@@ -6,7 +6,7 @@
 
 #include "event/Event.h"
 
-#include "event/EventArgument.h"
+#include "event/EventPromise.h"
 #include "event/EventLoop.h"
 
 namespace iphael {
@@ -16,7 +16,7 @@ namespace iphael {
               mode{EventMode::EMPTY},
               handler{nullptr},
               index{-1},
-              buffer{new EventArgument{}} {
+              buffer{new EventPromise{}} {
     }
 
     Event::~Event() {
