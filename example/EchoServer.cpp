@@ -7,6 +7,7 @@
 #include <fmt/format.h>
 #include "event/Signal.h"
 #include "event/EventLoop.h"
+#include "event/ThreadPool.h"
 #include "net/InetAddress.h"
 #include "net/TcpConnectionSet.h"
 #include "net/TcpConnection.h"
@@ -18,29 +19,26 @@ using namespace iphael::coro;
 class EchoServer {
 private:
     EventLoopConcept &listenerLoop;
-    std::unique_ptr<EventLoop> connLoop;
+    ThreadPool threadPool;
     TcpListener listener;
     TcpConnectionSet connections;
 
 public:
     EchoServer(EventLoopConcept &loop, const InetAddress& address)
             : listenerLoop{loop},
+              threadPool{loop},
               connections{},
               listener{loop, address} {
 
-        std::thread{[this] {
-            connLoop = std::make_unique<EventLoop>();
-            connLoop->Execute();
-        }}.detach();
+        threadPool.SetThreadsCount(4);
+        threadPool.Start();
 
         Coroutine::Spawn(loop, [this] {
             return listenerTask();
         });
     }
 
-    ~EchoServer() {
-        connLoop->Shutdown();
-    }
+    ~EchoServer() = default;
 
 private:
     Coroutine listenerTask() {
@@ -51,7 +49,7 @@ private:
             } else {
                 auto &conn = connections.Emplace(listenerLoop, std::move(sock));
 
-                Coroutine::Spawn(*connLoop, [this, &conn] {
+                Coroutine::Spawn(threadPool.NextLoop(), [this, &conn] {
                     return connectionTask(conn);
                 }, [this, &conn] {
                     connections.Remove(conn);

@@ -2,6 +2,7 @@ add_library(iphael
         event/Event.cpp
         event/Selector.cpp
         event/EventLoop.cpp
+        event/ThreadPool.cpp
         event/Signal.cpp
         coro/Coroutine.cpp
         net/InetAddress.cpp
