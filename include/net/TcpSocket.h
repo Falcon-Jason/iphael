@@ -5,9 +5,8 @@
   */
 
 #pragma once
-
-#include "Utility.h"
 #include <cstddef>
+#include "Utility.h"
 
 namespace iphael {
     class InetAddress;

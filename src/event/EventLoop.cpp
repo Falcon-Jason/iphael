@@ -4,15 +4,14 @@
   * @date 2022/2/19
   */
 
-#include "core/Selector.h"
-#include "core/EventArgument.h"
-#include "core/Event.h"
-#include "core/EventLoop.h"
+#include "event/EventLoop.h"
+
 #include <cassert>
 #include <sys/socket.h>
 #include <sys/eventfd.h>
-
-#define RUN_IN_LOOP(func, ...) RunInLoop()
+#include "event/Selector.h"
+#include "event/EventArgument.h"
+#include "event/Event.h"
 
 namespace iphael {
     EventLoop::EventLoop()
@@ -148,4 +147,4 @@ namespace iphael {
                 assert(false);
         }
     }
-}
+} // iphael

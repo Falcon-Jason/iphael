@@ -6,7 +6,7 @@
 
 #pragma once
 #include "Utility.h"
-#include "core/EventLoopConcept.h"
+#include "event/EventLoopConcept.h"
 #include <atomic>
 #include <thread>
 #include <memory>

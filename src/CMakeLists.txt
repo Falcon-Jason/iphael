@@ -1,13 +1,13 @@
 add_library(iphael
-        core/Event.cpp
-        core/Selector.cpp
-        core/EventLoop.cpp
-        core/Signal.cpp
+        event/Event.cpp
+        event/Selector.cpp
+        event/EventLoop.cpp
+        event/Signal.cpp
+        coro/Coroutine.cpp
         net/InetAddress.cpp
         net/TcpSocket.cpp
-        coroutine/Coroutine.cpp
-        coroutine/TcpConnection.cpp
-        coroutine/TcpListener.cpp
-        coroutine/ConnectionSet.cpp)
+        net/TcpConnection.cpp
+        net/TcpListener.cpp
+        net/TcpConnectionSet.cpp)
 
 target_link_libraries(iphael fmt)

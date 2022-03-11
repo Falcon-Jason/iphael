@@ -4,13 +4,14 @@
   * @date 2022/2/15
   */
 
-#include "core/EventArgument.h"
-#include "coroutine/TcpConnection.h"
-#include <sys/socket.h>
+#include "net/TcpConnection.h"
+
+#include "event/EventArgument.h"
 #include <cassert>
 #include <fmt/format.h>
+#include <sys/socket.h>
 
-namespace iphael::coroutine {
+namespace iphael {
     TcpConnection::TcpConnection(EventLoopConcept &loop, TcpSocket socket)
             : socket{std::move(socket)},
               event{new Event{loop, this->socket.Fildes()}},

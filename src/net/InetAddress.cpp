@@ -5,6 +5,7 @@
   */
 
 #include "net/InetAddress.h"
+
 #include <cstring>
 #include <fmt/format.h>
 

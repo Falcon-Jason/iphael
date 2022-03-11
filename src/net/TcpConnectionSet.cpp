@@ -1,20 +1,20 @@
 /**
- * @file ConnectionSet.cpp
+ * @file TcpConnectionSet.cpp
  * @author Jason
  * @date 2022/3/8
  */
 
+#include "net/TcpConnectionSet.h"
+
 #include <fmt/format.h>
-#include "coroutine/ConnectionSet.h"
-#include "coroutine/TcpConnection.h"
+#include "net/TcpConnection.h"
 
-
-namespace iphael::coroutine {
-    ConnectionSet::~ConnectionSet() {
+namespace iphael {
+    TcpConnectionSet::~TcpConnectionSet() {
         Clear();
     }
 
-    TcpConnection &ConnectionSet::Emplace(EventLoopConcept &loop, TcpSocket sock) {
+    TcpConnection &TcpConnectionSet::Emplace(EventLoopConcept &loop, TcpSocket sock) {
         auto fildes = sock.Fildes();
         fmt::print("Emplaced connection {}\n", fildes);
 
@@ -25,18 +25,18 @@ namespace iphael::coroutine {
         return *content.at(fildes);
     }
 
-    void ConnectionSet::Remove(int fildes) {
+    void TcpConnectionSet::Remove(int fildes) {
         content.erase(fildes);
         fmt::print("Removed connection {}\n", fildes);
     }
 
-    void ConnectionSet::Remove(TcpConnection &conn) {
+    void TcpConnectionSet::Remove(TcpConnection &conn) {
         return Remove(conn.Fildes());
     }
 
-    void ConnectionSet::Clear() {
+    void TcpConnectionSet::Clear() {
         while (!content.empty()) {
             Remove(content.begin()->first);
         }
     }
-}
+} // iphael

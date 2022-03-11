@@ -9,7 +9,7 @@
 #include "Utility.h"
 #include <coroutine>
 
-namespace iphael::coroutine {
+namespace iphael::coro {
     /**
      * @class Coroutine
      * RAII encapsulation of coroutineHandler handleEvent.
@@ -43,7 +43,7 @@ namespace iphael::coroutine {
             return *this != nullptr;
         }
 
-        constexpr auto *Address() const {
+        NODISCARD constexpr auto *Address() const {
             return handle.address();
         }
 
@@ -59,4 +59,4 @@ namespace iphael::coroutine {
          */
         void Destroy();
     };
-} // iphael
+} // iphael::coro

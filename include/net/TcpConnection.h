@@ -5,27 +5,24 @@
   */
 
 #pragma once
-
-#include "core/Event.h"
+#include "event/Event.h"
+#include "coro/Task.h"
+#include "coro/Coroutine.h"
 #include "net/TcpSocket.h"
-#include "coroutine/Task.h"
-#include "coroutine/Coroutine.h"
 
 namespace iphael {
     class InetAddress;
-}
 
-namespace iphael::coroutine {
-    class TcpConnection {
+    class TcpConnection : Noncopyable {
     public:
         class Awaitable;
 
         friend class TcpServer;
 
-    protected:
+    private:
         TcpSocket socket{nullptr};
         std::unique_ptr<Event> event{nullptr};
-        Coroutine coroutine{nullptr};
+        coro::Coroutine coroutine{nullptr};
         Function errorHandler{nullptr};
 
     public:

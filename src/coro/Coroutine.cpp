@@ -4,10 +4,11 @@
   * @date 2022/2/27
   */
 
-#include "coroutine/Coroutine.h"
+#include "coro/Coroutine.h"
+
 #include <cassert>
 
-namespace iphael::coroutine {
+namespace iphael::coro {
     Coroutine::Coroutine(std::coroutine_handle<> &&coroutineHandle) noexcept
             : handle{coroutineHandle} {
         coroutineHandle = nullptr;
@@ -47,4 +48,4 @@ namespace iphael::coroutine {
         handle = nullptr;
         return coroutineHandle.resume();
     }
-}
+} // iphael::coro

@@ -5,8 +5,8 @@
   */
 
 #pragma once
-#include "Utility.h"
 #include <variant>
+#include "Utility.h"
 
 namespace iphael {
     enum class EventMode : int16_t {
@@ -135,14 +135,14 @@ namespace iphael {
         }
 
         /**
-         * @note only available for core classes.
+         * @note only available for event module.
          */
         int &Index() {
             return index;
         }
 
         /**
-         * @note only available for core classes.
+         * @note only available for event module.
          */
         EventArgument *Argument() {
             return buffer.get();

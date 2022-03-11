@@ -5,21 +5,21 @@
   */
 #include <map>
 #include <fmt/format.h>
-#include "core/Signal.h"
-#include "core/EventLoop.h"
+#include "event/Signal.h"
+#include "event/EventLoop.h"
 #include "net/InetAddress.h"
-#include "coroutine/ConnectionSet.h"
-#include "coroutine/TcpConnection.h"
-#include "coroutine/TcpListener.h"
+#include "net/TcpConnectionSet.h"
+#include "net/TcpConnection.h"
+#include "net/TcpListener.h"
 
 using namespace iphael;
-using namespace iphael::coroutine;
+using namespace iphael::coro;
 
 class EchoServer {
 private:
     EventLoopConcept &loop;
     TcpListener listener;
-    ConnectionSet connections;
+    TcpConnectionSet connections;
 
 public:
     EchoServer(EventLoopConcept &loop, const InetAddress& address)

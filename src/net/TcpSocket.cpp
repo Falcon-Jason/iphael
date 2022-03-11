@@ -5,11 +5,12 @@
   */
 
 #include "net/TcpSocket.h"
-#include "net/InetAddress.h"
+
 #include <cassert>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/tcp.h>
+#include "net/InetAddress.h"
 
 namespace iphael {
     TcpSocket &TcpSocket::operator=(TcpSocket &&rhs) noexcept {

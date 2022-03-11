@@ -8,7 +8,7 @@
 
 #include <coroutine>
 
-namespace iphael::coroutine {
+namespace iphael::coro {
     struct Task {
         struct promise_type {
             auto get_return_object() { return Task{}; }
@@ -22,4 +22,4 @@ namespace iphael::coroutine {
             void return_void() {}
         };
     };
-}
+} // iphael::coro

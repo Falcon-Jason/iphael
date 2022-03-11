@@ -1,29 +1,27 @@
 /**
- * @file ConnectionSet.h
+ * @file TcpConnectionSet.h
  * @author Jason
  * @date 2022/3/8
  */
 
 #pragma once
-#include "net/TcpSocket.h"
 #include <map>
 #include <memory>
+#include "net/TcpSocket.h"
 
 namespace iphael {
-    class EventLoopConcept;
-}
-
-namespace iphael::coroutine {
     class TcpConnection;
 
-    class ConnectionSet : Noncopyable {
+    class EventLoopConcept;
+
+    class TcpConnectionSet : Noncopyable {
     private:
         std::map<int, std::unique_ptr<TcpConnection>> content;
 
     public:
-        ConnectionSet() = default;
+        TcpConnectionSet() = default;
 
-        ~ConnectionSet();
+        ~TcpConnectionSet();
 
         TcpConnection& Emplace(EventLoopConcept &loop, TcpSocket sock);
 

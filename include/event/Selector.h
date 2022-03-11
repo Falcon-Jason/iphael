@@ -5,8 +5,8 @@
   */
 
 #pragma once
-#include "Utility.h"
 #include <memory>
+#include "Utility.h"
 
 namespace iphael {
     class Event;

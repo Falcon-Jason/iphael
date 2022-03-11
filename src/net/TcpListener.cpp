@@ -4,13 +4,14 @@
   * @date 2022/3/4
   */
 
-#include "coroutine/TcpListener.h"
-#include "core/Event.h"
-#include "core/EventLoop.h"
-#include "net/TcpSocket.h"
-#include <cassert>
+#include "net/TcpListener.h"
 
-namespace iphael::coroutine {
+#include <cassert>
+#include "event/Event.h"
+#include "event/EventLoop.h"
+#include "net/TcpSocket.h"
+
+namespace iphael {
     TcpListener::TcpListener(EventLoopConcept &loop, TcpSocket sock)
             : socket{std::move(sock)},
               event{new Event{loop, socket.Fildes()}} {
@@ -46,4 +47,4 @@ namespace iphael::coroutine {
     TcpSocket TcpListener::Awaitable::await_resume() const noexcept {
         return TcpSocket::Accept(listener->socket);
     }
-}
+} // iphael
