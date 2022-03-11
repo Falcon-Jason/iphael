@@ -24,7 +24,7 @@ namespace iphael::coro {
 
         using Handle = std::coroutine_handle<Promise>;
 
-        using Function = std::function<Coroutine()>;
+        using Task = std::function<Coroutine()>;
 
         using promise_type = Promise;
 
@@ -72,9 +72,7 @@ namespace iphael::coro {
          */
         void Destroy();
 
-        Handle Release();
-
-        static void Spawn(EventLoopConcept &loop, const Coroutine::Function& func, iphael::Function afterReturned = nullptr);
+        static void Spawn(EventLoopConcept &loop, const Task& task, Function afterReturned = nullptr);
     };
 
     class Coroutine::Promise {

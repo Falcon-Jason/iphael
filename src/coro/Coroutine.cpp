@@ -43,14 +43,9 @@ namespace iphael::coro {
         }
     }
 
-    Coroutine::Handle Coroutine::Release() {
+    void Coroutine::Resume() {
         auto h = handle;
         handle = nullptr;
-        return h;
-    }
-
-    void Coroutine::Resume() {
-        auto h = Release();
 
         if (auto &loop = h.promise().loop; loop != nullptr) {
             loop->RunInLoop([handle = h] { handle.resume(); });
@@ -59,15 +54,13 @@ namespace iphael::coro {
         }
     }
 
-    void Coroutine::Spawn(EventLoopConcept &loop, const Coroutine::Function& func, iphael::Function afterReturned) {
-        auto coro = func();
-
+#define FORWARD(name) name = std::move(name)
+    void Coroutine::Spawn(EventLoopConcept &loop, const Task& task, Function afterReturned) {
+        auto coro = task();
         auto &promise = coro.handle.promise();
         promise.loop = &loop;
         promise.afterReturned = std::move(afterReturned);
-
-        promise.loop->RunInLoop([ch = coro.Release()] () mutable {
-            Coroutine{ch}.Resume();
-        });
+        coro.Resume();
     }
+#undef FORWARD
 } // iphael::coro
