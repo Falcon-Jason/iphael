@@ -22,6 +22,10 @@ namespace iphael {
 
         void operator=(const Noncopyable &) = delete;
 
+        Noncopyable(Noncopyable&&) noexcept = default;
+
+        Noncopyable &operator=(Noncopyable &&rhs) noexcept = default;
+
     protected:
         Noncopyable() = default;
 

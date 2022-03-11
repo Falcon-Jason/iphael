@@ -6,7 +6,6 @@
 
 #include "core/EventArgument.h"
 #include "coroutine/TcpConnection.h"
-#include "coroutine/TcpServer.h"
 #include <sys/socket.h>
 #include <cassert>
 #include <fmt/format.h>
