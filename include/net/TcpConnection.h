@@ -42,7 +42,13 @@ namespace iphael {
 
         int Fildes() { return socket.Fildes(); }
 
+        EventLoopConcept &ParentLoop() { return event->ParentLoop(); }
+
+        Awaitable ReadSome(void *buffer, size_t length);
+
         Awaitable Read(void *buffer, size_t length);
+
+        Awaitable WriteSome(void *buffer, size_t length);
 
         Awaitable Write(void *buffer, size_t length);
 
@@ -50,10 +56,17 @@ namespace iphael {
         void handleEvent();
     };
 
+    // created and running in coroutine's event loop
     class TcpConnection::Awaitable {
         TcpConnection *conn;
+        void *buffer;
+        size_t length;
+        EventMode mode;
+        bool useStrict;
 
-        explicit Awaitable(TcpConnection *conn);
+        explicit Awaitable(
+                TcpConnection *conn, void *buffer, size_t length,
+                EventMode mode, bool useStrict);
 
     public:
         friend class TcpConnection;

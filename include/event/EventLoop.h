@@ -54,7 +54,7 @@ namespace iphael {
          * If caller is running at the same thread, call @param function directly.
          * Otherwise, send @param function to this and wakeup.
          */
-        void RunInLoop(Function function);
+        void RunInLoop(Function function) override;
 
         /**
          * start running the event loop.

@@ -29,28 +29,15 @@ namespace iphael {
         return parent->UpdateEvent(this);
     }
 
-    void Event::SetAsyncWait(EventMode m) {
+    void Event::EnableAsyncEvent(EventMode m) {
         mode = m;
         buffer->Set(nullptr);
+        Update();
     }
 
-    void Event::SetAsyncReadSome(void *buf, size_t len) {
-        mode = EventMode::READ;
-        buffer->Set(buf, len, false);
-    }
-
-    void Event::SetAsyncRead(void *buf, size_t len) {
-        mode = EventMode::READ;
-        buffer->Set(buf, len, true);
-    }
-
-    void Event::SetAsyncWriteSome(void *buf, size_t len) {
-        mode = EventMode::WRITE;
-        buffer->Set(buf, len, false);
-    }
-
-    void Event::SetAsyncWrite(void *buf, size_t len) {
-        mode = EventMode::WRITE;
-        buffer->Set(buf, len, true);
+    void Event::EnableAsyncEvent(EventMode m, void *buf, size_t len, bool useStrict) {
+        mode = m;
+        buffer->Set(buf, len, useStrict);
+        Update();
     }
 } // iphael

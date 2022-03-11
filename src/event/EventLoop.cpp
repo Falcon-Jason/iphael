@@ -49,8 +49,7 @@ namespace iphael {
         assert(InLoopThread());
 
         executing = true;
-        wakeupEvent->SetAsyncWait(EventMode::READ);
-        wakeupEvent->Update();
+        wakeupEvent->EnableAsyncEvent(EventMode::READ);
 
         while (executing) {
             Event *event = selector->Wait();

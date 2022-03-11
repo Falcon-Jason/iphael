@@ -26,5 +26,12 @@ namespace iphael {
          * @param event the event to be removed
          */
         virtual void RemoveEvent(Event *event) = 0;
+
+        /**
+         * Run @param function in the thread owned by this loop.
+         * If caller is running at the same thread, call @param function directly.
+         * Otherwise, send @param function to this and wakeup.
+         */
+        virtual void RunInLoop(Function function) = 0;
     };
 } // iphael

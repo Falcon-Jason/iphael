@@ -76,42 +76,25 @@ namespace iphael {
         }
 
         /**
-         * Set the m of event to reactor-style async wait.
+         * Enables the @param mode and provide no buffers to it.
+         * This event will be waiting for @param mode triggered and call handler() immediately.
          * Call handler when event of @param mode triggered.
          */
-        void SetAsyncWait(EventMode mode);
+        void EnableAsyncEvent(EventMode mode);
 
         /**
-         * Set the mode of event to async read.
-         * Call handler when any length of data received.
-         * @param buffer where the read data saved
-         * @param length the length of buffer
-         */
-        void SetAsyncReadSome(void *buffer, size_t length);
-
-        /**
-         * Set the mode of event to async read.
-         * Call handler when all data received.
-         * @param buffer where the read data saved
-         * @param length the length of buffer
-         */
-        void SetAsyncRead(void *buffer, size_t length);
-
-        /**
-         * Set the mode of event to async write.
-         * Call handler when any length of data received.
-         * @param buffer the data to be sent
+         * Enables the @param mode and provide a buffer to it.
+         * @param mode the mode of event (read or write) to be enabled.
+         * @param buffer the place sending or receiving data.
+               (if @param mode == read) where the received data saved.
+               (if @param mode == write) the data to be sent.
          * @param length the length of buffer.
+         * @param useStrict when the handler() called.
+               (if @param useStrict == true) the handler will be called after all data of @param length sent/received.
+               (if @param useStrict == false) the handler will be called after data of any length sent/received.
          */
-        void SetAsyncWriteSome(void *buffer, size_t length);
+        void EnableAsyncEvent(EventMode mode, void *buffer, size_t length, bool useStrict);
 
-        /**
-         * Set the mode of event to async write.
-         * Call handler when all data sent.
-         * @param buffer the data to be sent
-         * @param length the length of buffer.
-         */
-        void SetAsyncWrite(void *buffer, size_t length);
 
         /**
          * Set the mode of this event.

@@ -46,7 +46,7 @@ private:
         char buffer[4096];
 
         while (true) {
-            ssize_t len = co_await conn.Read(buffer, sizeof(buffer));
+            ssize_t len = co_await conn.ReadSome(buffer, sizeof(buffer));
             co_await conn.Write(buffer, len);
         }
     }
