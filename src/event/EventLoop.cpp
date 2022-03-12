@@ -105,7 +105,7 @@ namespace iphael {
     bool EventLoop::processRead(Event *event) {
         assert(InLoopThread());
 
-        auto *arg = event->Argument();
+        auto *arg = event->Promise();
         if (arg == nullptr) { return true; }
 
         ssize_t len = read(
@@ -121,7 +121,7 @@ namespace iphael {
     bool EventLoop::processWrite(Event *event) {
         assert(InLoopThread());
 
-        auto *arg = event->Argument();
+        auto *arg = event->Promise();
         if (arg == nullptr) { return true; }
 
         ssize_t len = write(
@@ -135,7 +135,7 @@ namespace iphael {
     }
 
     bool EventLoop::processEvent(Event *event) {
-        if (*event->Argument() == nullptr) {
+        if (*event->Promise() == nullptr) {
             return true;
         }
 

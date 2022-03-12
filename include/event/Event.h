@@ -5,19 +5,29 @@
   */
 
 #pragma once
-#include <variant>
+#include <bitset>
 #include "Utility.h"
 
 namespace iphael {
-    enum class EventMode : int16_t {
-        READ,
-        WRITE,
-        END,
-        EMPTY = END,
-    };
+    namespace event_mode {
+        enum Mode : int {
+            READ,
+            WRITE,
+            END,
+            EMPTY = END,
+        };
+        constexpr auto SIZE = Mode::END;
+
+        using ModeSet = std::bitset<SIZE>;
+        constexpr auto RD_ONLY = ModeSet{1 << READ};
+        constexpr auto WR_ONLY = ModeSet{1 << WRITE};
+        constexpr auto RD_WR = ModeSet{(1 << READ) | (1 << WRITE)};
+    }
 
     class EventLoopConcept;
     class EventPromise;
+    using EventMode = event_mode::Mode;
+    using EventModeSet = event_mode::ModeSet;
 
     /**
      * @class Event
@@ -33,7 +43,7 @@ namespace iphael {
         EventMode mode;
         Function handler;
         int index;
-        std::unique_ptr<EventPromise> buffer;
+        std::unique_ptr<EventPromise> promise;
 
     public:
         /**
@@ -83,12 +93,12 @@ namespace iphael {
         void EnableAsyncEvent(EventMode mode);
 
         /**
-         * Enables the @param mode and provide a buffer to it.
+         * Enables the @param mode and provide a promise to it.
          * @param mode the mode of event (read or write) to be enabled.
          * @param buffer the place sending or receiving data.
                (if @param mode == read) where the received data saved.
                (if @param mode == write) the data to be sent.
-         * @param length the length of buffer.
+         * @param length the length of promise.
          * @param useStrict when the handler() called.
                (if @param useStrict == true) the handler will be called after all data of @param length sent/received.
                (if @param useStrict == false) the handler will be called after data of any length sent/received.
@@ -110,7 +120,7 @@ namespace iphael {
          * Set the handler of this event.
          * @param value the new handler to be set.
          * @return the reference to this, for chain setting.
-         * @note no copy operation when passing an rvalue as buffer.
+         * @note no copy operation when passing an rvalue as promise.
          */
         Event &SetHandler(Function value) {
             this->handler = std::move(value);
@@ -127,8 +137,8 @@ namespace iphael {
         /**
          * @note only available for event module.
          */
-        EventPromise *Argument() {
-            return buffer.get();
+        EventPromise *Promise() {
+            return promise.get();
         }
 
         /**

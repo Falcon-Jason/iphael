@@ -21,7 +21,7 @@ namespace iphael {
     private:
         TcpSocket socket{nullptr};
         std::unique_ptr<Event> event{nullptr};
-        Coroutine coroutine{nullptr};
+        Coroutine awaiter[event_mode::SIZE]{nullptr};
 
     public:
         TcpConnection(EventLoopConcept &loop, int fildes)
@@ -50,7 +50,7 @@ namespace iphael {
         void handleEvent();
     };
 
-    // created and running in coroutine's event listenerLoop
+    // created and running in awaiter's event listenerLoop
     class TcpConnection::Awaitable {
         TcpConnection *conn;
         void *buffer;

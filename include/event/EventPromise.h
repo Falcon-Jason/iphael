@@ -39,10 +39,10 @@ namespace iphael {
         void Set(std::nullptr_t) { return Set(nullptr, 0, false); }
 
         /**
-         * Set this as a single buffer buffer,
+         * Set this as a single promise promise,
          * for read, write operations
          * @param buffer the data to be read/written
-         * @param length the length of buffer
+         * @param length the length of promise
          */
         void Set(void *buf, size_t len, bool st) {
             buffer = (char *)buf;

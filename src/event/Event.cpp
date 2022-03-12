@@ -16,7 +16,7 @@ namespace iphael {
               mode{EventMode::EMPTY},
               handler{nullptr},
               index{-1},
-              buffer{new EventPromise{}} {
+              promise{new EventPromise{}} {
     }
 
     Event::~Event() {
@@ -31,13 +31,13 @@ namespace iphael {
 
     void Event::EnableAsyncEvent(EventMode m) {
         mode = m;
-        buffer->Set(nullptr);
+        promise->Set(nullptr);
         Update();
     }
 
     void Event::EnableAsyncEvent(EventMode m, void *buf, size_t len, bool useStrict) {
         mode = m;
-        buffer->Set(buf, len, useStrict);
+        promise->Set(buf, len, useStrict);
         Update();
     }
 } // iphael
