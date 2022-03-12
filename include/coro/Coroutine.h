@@ -10,13 +10,13 @@
 #include <coroutine>
 
 namespace iphael {
-    class EventLoopConcept;
 }
 
-namespace iphael::coro {
+namespace iphael {
+    class EventLoopConcept;
+
     /**
      * @class Coroutine
-     * RAII encapsulation of coroutineHandler handleEvent.
      */
     class Coroutine : Noncopyable {
     public:
@@ -98,4 +98,4 @@ namespace iphael::coro {
             if (afterReturned != nullptr) { afterReturned(); }
         }
     };
-} // iphael::coro
+} // iphael

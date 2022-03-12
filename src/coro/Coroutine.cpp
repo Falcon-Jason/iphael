@@ -9,7 +9,7 @@
 #include "event/EventLoopConcept.h"
 #include <cassert>
 
-namespace iphael::coro {
+namespace iphael {
     Coroutine::Coroutine(Coroutine::Handle coroutineHandle) noexcept
             : handle{coroutineHandle} {
     }
@@ -54,7 +54,6 @@ namespace iphael::coro {
         }
     }
 
-#define FORWARD(name) name = std::move(name)
     void Coroutine::Spawn(EventLoopConcept &loop, const Task& task, Function afterReturned) {
         auto coro = task();
         auto &promise = coro.handle.promise();
@@ -62,5 +61,4 @@ namespace iphael::coro {
         promise.afterReturned = std::move(afterReturned);
         coro.Resume();
     }
-#undef FORWARD
-} // iphael::coro
+} // iphael

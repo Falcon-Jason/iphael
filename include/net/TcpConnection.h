@@ -21,7 +21,7 @@ namespace iphael {
     private:
         TcpSocket socket{nullptr};
         std::unique_ptr<Event> event{nullptr};
-        coro::Coroutine coroutine{nullptr};
+        Coroutine coroutine{nullptr};
 
     public:
         TcpConnection(EventLoopConcept &loop, int fildes)
@@ -69,7 +69,7 @@ namespace iphael {
 
         NODISCARD ssize_t await_resume() const noexcept;
 
-        void await_suspend(coro::Coroutine::Handle handle);
+        void await_suspend(Coroutine::Handle handle);
     };
 
     using TcpConnectionPtr = std::unique_ptr<TcpConnection>;

@@ -14,7 +14,6 @@
 #include "net/TcpListener.h"
 
 using namespace iphael;
-using namespace iphael::coro;
 
 class EchoServer {
 private:
@@ -47,13 +46,13 @@ private:
             if (sock == nullptr) {
                 co_return;
             } else {
-                auto &conn = connections.Emplace(listenerLoop, std::move(sock));
+                auto &nextLoop = threadPool.NextLoop();
+                auto &conn = connections.Emplace(nextLoop, std::move(sock));
 
-                Coroutine::Spawn(threadPool.NextLoop(), [this, &conn] {
-                    return connectionTask(conn);
-                }, [this, &conn] {
-                    connections.Remove(conn);
-                });
+                Coroutine::Spawn(
+                        nextLoop,
+                        [this, &conn] { return connectionTask(conn); },
+                        [this, &conn] { connections.Remove(conn); });
             }
         }
     }
@@ -73,7 +72,7 @@ private:
 
 int main() {
     EventLoop loop;
-    EchoServer server{loop, InetAddress{1234}};
+    EchoServer server{loop, InetAddress{8080}};
 
     std::thread([&loop] {
         getchar();
