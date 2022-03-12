@@ -97,5 +97,7 @@ namespace iphael {
         void return_void() {
             if (afterReturned != nullptr) { afterReturned(); }
         }
+
+        EventLoopConcept *ParentLoop() { return loop; }
     };
 } // iphael

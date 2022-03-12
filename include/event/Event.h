@@ -81,6 +81,14 @@ namespace iphael {
             return enabled;
         }
 
+        NODISCARD bool Available(EventMode m) const {
+            return available[m];
+        }
+
+        NODISCARD bool Enabled(EventMode m) const {
+            return enabled[m];
+        }
+
         /**
          * @return the parent(aka. owner) event listenerLoop of this event.
          */
