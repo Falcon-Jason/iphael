@@ -10,13 +10,20 @@
 #include "event/EventLoop.h"
 
 namespace iphael {
-    Event::Event(EventLoopConcept &loop, int fildes)
+    Event::Event(EventLoopConcept &loop, int fildes, EventModeSet availableModes)
             : parent{&loop},
               fildes{fildes},
-              mode{EventMode::EMPTY},
-              handler{nullptr},
               index{-1},
-              promise{new EventPromise{}} {
+              handler{nullptr},
+              promise{nullptr},
+              available{availableModes},
+              enabled{} {
+        if (availableModes[event_mode::READ]) {
+            promise[event_mode::READ] = std::make_unique<EventPromise>();
+        }
+        if (availableModes[event_mode::WRITE]) {
+            promise[event_mode::WRITE] = std::make_unique<EventPromise>();
+        }
     }
 
     Event::~Event() {
@@ -30,14 +37,14 @@ namespace iphael {
     }
 
     void Event::EnableAsyncEvent(EventMode m) {
-        mode = m;
-        promise->Set(nullptr);
+        enabled[m] = true;
+        promise[m]->Set(nullptr);
         Update();
     }
 
-    void Event::EnableAsyncEvent(EventMode m, void *buf, size_t len, bool useStrict) {
-        mode = m;
-        promise->Set(buf, len, useStrict);
+    void Event::EnableAsyncEvent(EventMode m, void *buf, size_t len, bool strict) {
+        enabled[m] = true;
+        promise[m]->Set(buf, len, strict);
         Update();
     }
 } // iphael

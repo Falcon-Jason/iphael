@@ -14,7 +14,7 @@
 namespace iphael {
     TcpListener::TcpListener(EventLoopConcept &loop, TcpSocket sock)
             : socket{std::move(sock)},
-              event{new Event{loop, socket.Fildes()}} {
+              event{new Event{loop, socket.Fildes(), event_mode::RD_ONLY}} {
         event->SetHandler([this] (EventMode m) {
             assert(m == event_mode::READ);
             handleEvent();

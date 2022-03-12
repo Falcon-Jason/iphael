@@ -46,7 +46,8 @@ private:
             if (sock == nullptr) {
                 co_return;
             } else {
-                auto &nextLoop = threadPool.NextLoop();
+//                auto &nextLoop = threadPool.NextLoop();
+                auto &nextLoop = listenerLoop;
                 auto &conn = connections.Emplace(nextLoop, std::move(sock));
 
                 Coroutine::Spawn(

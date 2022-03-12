@@ -7,6 +7,7 @@
 #pragma once
 #include "Utility.h"
 #include "event/EventLoopConcept.h"
+#include "Event.h"
 #include <atomic>
 #include <thread>
 #include <memory>
@@ -93,7 +94,9 @@ namespace iphael {
 
         void queue(Function function);
 
-        bool processEvent(Event *event);
+        void processEvent(Event *event, EventMode mode);
+
+        bool processEventMode(Event *event, EventMode mode);
 
         bool processRead(Event *event);
 

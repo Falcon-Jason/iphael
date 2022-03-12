@@ -7,6 +7,7 @@
 #pragma once
 #include <memory>
 #include "Utility.h"
+#include "Event.h"
 
 namespace iphael {
     class Event;
@@ -31,7 +32,7 @@ namespace iphael {
          * AsyncWait until an event triggered
          * @return the triggered event
          */
-        Event *Wait();
+        std::pair<Event *, EventModeSet> Wait();
 
         /**
          * UpdateEvent the changes of event

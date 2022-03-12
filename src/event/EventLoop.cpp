@@ -23,7 +23,7 @@ namespace iphael {
         wakeupFildes = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
         if (wakeupFildes < 0) { return; }
 
-        wakeupEvent = std::make_unique<Event>(*this, wakeupFildes);
+        wakeupEvent = std::make_unique<Event>(*this, wakeupFildes, event_mode::RD_ONLY);
         wakeupEvent->SetHandler([this] (EventMode m) {
             assert(m == event_mode::READ);
             handleWakeup();
@@ -56,18 +56,75 @@ namespace iphael {
         wakeupEvent->EnableAsyncEvent(EventMode::READ);
 
         while (executing) {
-            Event *event = selector->Wait();
+            auto [event, modes] = selector->Wait();
             if (event == nullptr) { continue; }
 
-            if (processEvent(event)) {
-                event->Handle();
-            } else {
-                selector->UpdateEvent(event);
+            if (modes[event_mode::READ]) {
+                processEvent(event, event_mode::READ);
+            }
+            if (modes[event_mode::WRITE]) {
+                processEvent(event, event_mode::WRITE);
             }
 
             if (selector->Empty()) { executing = false; }
         }
         return 0;
+    }
+
+    void EventLoop::processEvent(Event *event, EventMode mode) {
+        if (processEventMode(event, mode)) {
+            event->Handle(mode);
+        } else {
+            selector->UpdateEvent(event);
+        }
+    };
+
+    bool EventLoop::processEventMode(Event *event, EventMode mode) {
+        if (*event->Promise(mode) == nullptr) {
+            return true;
+        }
+
+        switch (mode) {
+            case EventMode::READ:
+                return processRead(event);
+            case EventMode::WRITE:
+                return processWrite(event);
+            default:
+                // event must be either READ or WRITE
+                assert(false);
+        }
+    }
+
+    bool EventLoop::processRead(Event *event) {
+        assert(InLoopThread());
+
+        auto *arg = event->Promise(event_mode::READ);
+        if (arg == nullptr) { return true; }
+
+        ssize_t len = read(
+                event->Fildes(),
+                arg->buffer + arg->lengthR,
+                arg->length - arg->lengthR);
+
+        arg->lengthR += len;
+        if (!arg->strict || len <= 0) { return true; }
+        return (arg->lengthR == arg->length);
+    }
+
+    bool EventLoop::processWrite(Event *event) {
+        assert(InLoopThread());
+
+        auto *arg = event->Promise(event_mode::WRITE);
+        if (arg == nullptr) { return true; }
+
+        ssize_t len = write(
+                event->Fildes(),
+                arg->buffer + arg->lengthR,
+                arg->length - arg->lengthR);
+
+        arg->lengthR += len;
+        if (!arg->strict || len <= 0) { return true; }
+        return (arg->lengthR == arg->length);
     }
 
     void EventLoop::RunInLoop(Function function) {
@@ -84,6 +141,10 @@ namespace iphael {
         wakeup();
     }
 
+    void EventLoop::wakeup() {
+        eventfd_write(wakeupFildes, 1);
+    }
+
     void EventLoop::handleWakeup() {
         eventfd_t value;
         eventfd_read(wakeupFildes, &value);
@@ -96,58 +157,6 @@ namespace iphael {
 
         for(auto &func : functions) {
             func();
-        }
-    }
-
-    void EventLoop::wakeup() {
-        eventfd_write(wakeupFildes, 1);
-    }
-
-    bool EventLoop::processRead(Event *event) {
-        assert(InLoopThread());
-
-        auto *arg = event->Promise();
-        if (arg == nullptr) { return true; }
-
-        ssize_t len = read(
-                event->Fildes(),
-                arg->buffer + arg->lengthR,
-                arg->length - arg->lengthR);
-
-        arg->lengthR += len;
-        if (!arg->strict || len <= 0) { return true; }
-        return (arg->lengthR == arg->length);
-    }
-
-    bool EventLoop::processWrite(Event *event) {
-        assert(InLoopThread());
-
-        auto *arg = event->Promise();
-        if (arg == nullptr) { return true; }
-
-        ssize_t len = write(
-                event->Fildes(),
-                arg->buffer + arg->lengthR,
-                arg->length - arg->lengthR);
-
-        arg->lengthR += len;
-        if (!arg->strict || len <= 0) { return true; }
-        return (arg->lengthR == arg->length);
-    }
-
-    bool EventLoop::processEvent(Event *event) {
-        if (*event->Promise() == nullptr) {
-            return true;
-        }
-
-        switch (event->Mode()) {
-            case EventMode::READ:
-                return processRead(event);
-            case EventMode::WRITE:
-                return processWrite(event);
-            default:
-                // event must be either READ or WRITE
-                assert(false);
         }
     }
 } // iphael

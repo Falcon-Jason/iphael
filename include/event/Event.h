@@ -31,8 +31,7 @@ namespace iphael {
     using EventHandler = std::function<void(EventMode)>;
 
     /**
-     * @class Event
-     * The event to be handled by @class EventLoop; which references a file descriptor instead of owning it.
+     * The event to be handled by [class EventLoop]; which references a file descriptor instead of owning it.
      * It supports handling only one mode (read/write) at the same time.
      */
     class Event : Noncopyable {
@@ -41,28 +40,30 @@ namespace iphael {
     private:
         EventLoopConcept *parent;
         int fildes;
-        EventMode mode;
-        EventHandler handler;
         int index;
-        std::unique_ptr<EventPromise> promise;
+        EventHandler handler;
+        EventModeSet available;
+        EventModeSet enabled;
+        std::unique_ptr<EventPromise> promise[event_mode::SIZE];
 
     public:
         /**
-         * Create a new event.
-         * By default, this event's mode is EMPTY, and it has no handler.
-         * After created, this event's mode and handler should be set.
+         * Create a new event.\n
+         * By default, this event's mode is EMPTY, and it has no handler.\n
+         * After created, this event's mode and handler should be set.\n
          * @param loop the parent(aka. owner) event listenerLoop of this event.
          * @param fildes the file descriptor handled by this event.
          */
-        Event(EventLoopConcept &loop, int fildes);
+        Event(EventLoopConcept &loop, int fildes, EventModeSet availableModes);
 
         ~Event();
 
         /**
          * call the handler to handleEvent this event.
          */
-        void Handle() {
-            if (handler) { handler(Mode()); }
+        void Handle(EventMode mode) {
+            enabled[mode] = false;
+            if (handler) { handler(mode); }
         }
 
         /**
@@ -72,11 +73,12 @@ namespace iphael {
             return fildes;
         }
 
-        /**
-         * @return the IO mode of this event.
-         */
-        NODISCARD EventMode Mode() const {
-            return mode;
+        NODISCARD EventModeSet AvailableModes() const {
+            return available;
+        }
+
+        NODISCARD EventModeSet EnabledModes() const {
+            return enabled;
         }
 
         /**
@@ -87,35 +89,24 @@ namespace iphael {
         }
 
         /**
-         * Enables the @param mode and provide no buffers to it.
-         * This event will be waiting for @param mode triggered and call handler() immediately.
-         * Call handler when event of @param mode triggered.
+         * Enables the [param mode] and provide no buffers to it. \n
+         * This event will be waiting for [param mode] triggered and call handler() immediately. \n
+         * Call handler when event of [param mode] triggered. \n
          */
         void EnableAsyncEvent(EventMode mode);
 
         /**
-         * Enables the @param mode and provide a promise to it.
-         * @param mode the mode of event (read or write) to be enabled.
-         * @param buffer the place sending or receiving data.
-               (if @param mode == read) where the received data saved.
-               (if @param mode == write) the data to be sent.
-         * @param length the length of promise.
-         * @param useStrict when the handler() called.
-               (if @param useStrict == true) the handler will be called after all data of @param length sent/received.
-               (if @param useStrict == false) the handler will be called after data of any length sent/received.
+         * Enables the [param mode] and provide a promise to it.\n
+         * @param mode the mode of event (read or write) to be enabled.\n
+         * @param buffer the place sending or receiving data.\n
+         * (if mode == read) where the received data saved.\n
+         * (if mode == write) the data to be sent.\n
+         * @param length the length of promise.\n
+         * @param strict when the handler() called.\n
+         *     (if strict == true) the handler will be called after all data of [param length] sent/received. \n
+         *     (if strict == false) the handler will be called after data of any length sent/received.\n
          */
-        void EnableAsyncEvent(EventMode mode, void *buffer, size_t length, bool useStrict);
-
-
-        /**
-         * Set the mode of this event.
-         * @param value the mode to be set.
-         * @return the reference to this, for chain setting.
-         */
-        Event &SetMode(EventMode value) {
-            this->mode = value;
-            return *this;
-        }
+        void EnableAsyncEvent(EventMode mode, void *buffer, size_t length, bool strict);
 
         /**
          * Set the handler of this event.
@@ -129,22 +120,25 @@ namespace iphael {
         }
 
         /**
-         * @note only available for event module.
+         * @note
+         *     only available for event module.
          */
         int &Index() {
             return index;
         }
 
         /**
-         * @note only available for event module.
+         * @note
+         *     only available for event module.
          */
-        EventPromise *Promise() {
-            return promise.get();
+        EventPromise *Promise(EventMode mode) {
+            return promise[mode].get();
         }
 
         /**
          * update this event to event listenerLoop
-         * @note call this function after finished handling.
+         * @note
+         *     call this function after finished handling.
          */
         void Update();
     };

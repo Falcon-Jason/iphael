@@ -50,7 +50,7 @@ namespace iphael {
 
         for (int i = 0; i < threadsCount; i++) {
             loops[i]->Shutdown();
-            threads[i].join();
+            threads[i].detach();
         }
 
         loops.clear();

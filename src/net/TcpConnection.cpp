@@ -15,7 +15,7 @@
 namespace iphael {
     TcpConnection::TcpConnection(EventLoopConcept &loop, TcpSocket socket)
             : socket{std::move(socket)},
-              event{new Event{loop, this->socket.Fildes()}},
+              event{new Event{loop, this->socket.Fildes(), event_mode::RD_WR}},
               awaiter{nullptr} {
         event->SetHandler([this] (EventMode m) { handleEvent(m); } );
     }
@@ -64,8 +64,8 @@ namespace iphael {
     }
 
     ssize_t TcpConnection::Awaitable::await_resume() const noexcept {
-        auto len = conn->event->Promise()->ReturnedLength();
-        conn->event->Promise()->Set(nullptr);
+        auto len = conn->event->Promise(mode)->ReturnedLength();
+        conn->event->Promise(mode)->Set(nullptr);
         return len;
     }
 } // iphael

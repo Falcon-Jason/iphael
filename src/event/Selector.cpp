@@ -25,15 +25,18 @@ namespace iphael {
         }
     }
 
-    static uint32_t EpollEvent(EventMode mode) {
-        switch (mode) {
-            case EventMode::READ:
-                return EPOLLIN;
-            case EventMode::WRITE:
-                return EPOLLOUT;
-            default:
-                return 0;
-        }
+    static uint32_t EpollEvent(EventModeSet mode) {
+        uint32_t ret = 0;
+        if (mode[event_mode::READ]) { ret |= EPOLLIN; }
+        if (mode[event_mode::WRITE]) { ret |= EPOLLOUT; }
+        return ret;
+    }
+
+    static EventModeSet EventModes(uint32_t epev) {
+        EventModeSet ret{};
+        if (epev & EPOLLIN) { ret[event_mode::READ] = true; }
+        if (epev & EPOLLOUT) { ret[event_mode::WRITE] = true; }
+        return ret;
     }
 
     void Selector::UpdateEvent(Event *event) {
@@ -47,7 +50,7 @@ namespace iphael {
 
         epoll_event epev{};
         epev.data.ptr = event;
-        epev.events = EpollEvent(event->Mode()) | EPOLLONESHOT;
+        epev.events = EpollEvent(event->EnabledModes()) | EPOLLONESHOT;
 
         epoll_ctl(poller, op, event->Fildes(), &epev);
     }
@@ -58,11 +61,13 @@ namespace iphael {
         eventCount--;
     }
 
-    Event *Selector::Wait() {
+    std::pair<Event *, EventModeSet> Selector::Wait() {
         epoll_event epev{};
         int count = epoll_wait(poller, &epev, 1, -1);
 
-        if (count != 1) { return nullptr; }
-        return static_cast<Event *>(epev.data.ptr);
+        if (count != 1) { return {nullptr, EventModeSet{}}; }
+        return {
+            static_cast<Event *>(epev.data.ptr),
+            EventModes(epev.events)};
     }
 } // iphael
