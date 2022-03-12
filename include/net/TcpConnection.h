@@ -47,7 +47,7 @@ namespace iphael {
         Awaitable Write(void *buffer, size_t length);
 
     private:
-        void handleEvent();
+        void handleEvent(EventMode mode);
     };
 
     // created and running in awaiter's event listenerLoop

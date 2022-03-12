@@ -17,14 +17,14 @@ namespace iphael {
             : socket{std::move(socket)},
               event{new Event{loop, this->socket.Fildes()}},
               awaiter{nullptr} {
-        event->SetHandler([this] { handleEvent(); } );
+        event->SetHandler([this] (EventMode m) { handleEvent(m); } );
     }
 
     TcpConnection::~TcpConnection() = default;
 
-    void TcpConnection::handleEvent() {
-        ParentLoop().RunInLoop([this] {
-                awaiter[event->Mode()].Resume();
+    void TcpConnection::handleEvent(EventMode mode) {
+        ParentLoop().RunInLoop([this, mode] {
+                awaiter[mode].Resume();
         });
     }
 
@@ -58,7 +58,7 @@ namespace iphael {
 
     void TcpConnection::Awaitable::await_suspend(Coroutine::Handle handle) {
         conn->ParentLoop().RunInLoop( [this, handle] () mutable {
-            conn->awaiter[mode] = std::move(handle);
+            conn->awaiter[mode] = handle;
             conn->event->EnableAsyncEvent(mode, buffer, length, useStrict);
         });
     }

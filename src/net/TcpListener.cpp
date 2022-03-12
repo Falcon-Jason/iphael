@@ -15,7 +15,10 @@ namespace iphael {
     TcpListener::TcpListener(EventLoopConcept &loop, TcpSocket sock)
             : socket{std::move(sock)},
               event{new Event{loop, socket.Fildes()}} {
-        event->SetHandler([this] { handleEvent(); } );
+        event->SetHandler([this] (EventMode m) {
+            assert(m == event_mode::READ);
+            handleEvent();
+        } );
     }
 
     int TcpListener::Fildes() const {
@@ -42,7 +45,7 @@ namespace iphael {
 
     void TcpListener::Awaitable::await_suspend(Coroutine::Handle handle) {
         listener->ParentLoop().RunInLoop([this, handle] () mutable {
-            listener->coroutine = std::move(handle);
+            listener->coroutine = handle;
             listener->event->EnableAsyncEvent(EventMode::READ);
         });
     }

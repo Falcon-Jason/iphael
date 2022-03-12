@@ -24,7 +24,8 @@ namespace iphael {
         if (wakeupFildes < 0) { return; }
 
         wakeupEvent = std::make_unique<Event>(*this, wakeupFildes);
-        wakeupEvent->SetHandler([this] {
+        wakeupEvent->SetHandler([this] (EventMode m) {
+            assert(m == event_mode::READ);
             handleWakeup();
             wakeupEvent->Update();
         });

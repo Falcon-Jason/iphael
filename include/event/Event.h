@@ -28,6 +28,7 @@ namespace iphael {
     class EventPromise;
     using EventMode = event_mode::Mode;
     using EventModeSet = event_mode::ModeSet;
+    using EventHandler = std::function<void(EventMode)>;
 
     /**
      * @class Event
@@ -41,7 +42,7 @@ namespace iphael {
         EventLoopConcept *parent;
         int fildes;
         EventMode mode;
-        Function handler;
+        EventHandler handler;
         int index;
         std::unique_ptr<EventPromise> promise;
 
@@ -61,7 +62,7 @@ namespace iphael {
          * call the handler to handleEvent this event.
          */
         void Handle() {
-            if (handler) { handler(); }
+            if (handler) { handler(Mode()); }
         }
 
         /**
@@ -122,7 +123,7 @@ namespace iphael {
          * @return the reference to this, for chain setting.
          * @note no copy operation when passing an rvalue as promise.
          */
-        Event &SetHandler(Function value) {
+        Event &SetHandler(EventHandler value) {
             this->handler = std::move(value);
             return *this;
         }

@@ -42,7 +42,7 @@ namespace iphael {
 
         ~Coroutine() { Destroy(); }
 
-        Coroutine &operator=(Handle &&handle) noexcept;
+        Coroutine &operator=(Handle handle) noexcept;
 
         Coroutine &operator=(Coroutine &&rhs) noexcept;
 

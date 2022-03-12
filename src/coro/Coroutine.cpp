@@ -15,20 +15,22 @@ namespace iphael {
     }
 
     Coroutine::Coroutine(Coroutine &&rhs) noexcept
-            : Coroutine{std::move(rhs.handle)} {
+            : Coroutine{rhs.handle} {
+        rhs.handle = nullptr;
     }
 
-    Coroutine &Coroutine::operator=(Coroutine::Handle &&coroutineHandle) noexcept {
+    Coroutine &Coroutine::operator=(Coroutine::Handle coroutineHandle) noexcept {
         assert(handle != coroutineHandle);
 
         Destroy();
         handle = coroutineHandle;
-        coroutineHandle = nullptr;
         return *this;
     }
 
     Coroutine &Coroutine::operator=(Coroutine &&rhs) noexcept {
-        return *this = std::move(rhs.handle);
+        this->handle = rhs.handle;
+        rhs.handle = nullptr;
+        return *this;
     }
 
     Coroutine &Coroutine::operator=(nullptr_t) noexcept {
