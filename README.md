@@ -42,7 +42,8 @@ int main() {
 After C++20, with ``coroutine``, we can program 
 asynchronized code in a synchronized way, like:
 ```c++
-Coroutine handleConnection(Socket conn) {
+Coroutine handleConnection(EventLoop &loop, Socket sock) {
+    TcpConnection conn{loop, std::move(sock)};
     char buffer[BUFFER_SIZE];
     
     for(;;) {
@@ -52,16 +53,20 @@ Coroutine handleConnection(Socket conn) {
     }
 }
 
-Coroutine handleListener(int fd) {
+Coroutine handleListener(EventLoop &loop, Socket sock) {
+    TcpListener listener{loop, std::move(sock)};
+    
     for(;;) {
-        Socket conn = co_await accept(fd, NULL, NULL);
-        handleConnection(std::move(conn));
+        Socket conn = co_await listener.accept();
+        handleConnection(loop, std::move(conn));
     }
 }
 
 int main() {
+    EventLoop loop;
+    
     Socket listener = Socket::Listen(address);
-    handleListener(std::move(listener));
+    handleListener(loop, std::move(listener));
 }
 ```
 
