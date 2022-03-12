@@ -21,10 +21,6 @@ namespace iphael {
         } );
     }
 
-    int TcpListener::Fildes() const {
-        return socket.Fildes();
-    }
-
     EventLoopConcept &TcpListener::ParentLoop() {
         return event->ParentLoop();
     }

@@ -29,15 +29,19 @@ public:
               connections{},
               listener{loop, address} {
 
-        threadPool.SetThreadsCount(4);
-        threadPool.Start();
+        if (listener != nullptr) {
+            threadPool.SetThreadsCount(4);
+            threadPool.Start();
 
-        Coroutine::Spawn(loop, [this] {
-            return listenerTask();
-        });
+            Coroutine::Spawn(loop, [this] {
+                return listenerTask();
+            });
+        }
     }
 
     ~EchoServer() = default;
+
+    bool operator==(nullptr_t) const { return listener == nullptr; }
 
 private:
     Coroutine listenerTask() {
@@ -73,7 +77,9 @@ private:
 
 int main() {
     EventLoop loop;
-    EchoServer server{loop, InetAddress{8080}};
+    EchoServer server{loop, InetAddress{443}};
+
+    if (server == nullptr) { return EXIT_FAILURE; }
 
     std::thread([&loop] {
         getchar();

@@ -58,6 +58,7 @@ namespace iphael {
 
     void TcpConnection::Awaitable::await_suspend(Coroutine::Handle handle) {
         conn->ParentLoop().RunInLoop( [this, handle] () mutable {
+            assert(!conn->event->Enabled(mode));
             conn->awaiter[mode] = handle;
             conn->event->EnableAsyncEvent(mode, buffer, length, useStrict);
         });

@@ -24,17 +24,19 @@ namespace iphael {
         Coroutine awaiter[event_mode::SIZE]{nullptr};
 
     public:
+        TcpConnection(EventLoopConcept &loop, TcpSocket socket);
+
         TcpConnection(EventLoopConcept &loop, int fildes)
                 : TcpConnection{loop, TcpSocket{fildes}} {
         }
-
-        TcpConnection(EventLoopConcept &loop, TcpSocket socket);
 
         TcpConnection(TcpConnection &&rhs) noexcept = default;
 
         ~TcpConnection();
 
-        int Fildes() { return socket.Fildes(); }
+        bool operator==(nullptr_t) const { return socket == nullptr; }
+
+        NODISCARD int Fildes() const { return socket.Fildes(); }
 
         EventLoopConcept &ParentLoop() { return event->ParentLoop(); }
 

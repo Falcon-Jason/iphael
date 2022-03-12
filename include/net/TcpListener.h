@@ -37,7 +37,9 @@ namespace iphael {
                 : TcpListener{loop, TcpSocket::Listen(address)} {
         }
 
-        NODISCARD int Fildes() const;
+        NODISCARD int Fildes() const { return socket.Fildes(); }
+
+        bool operator==(nullptr_t) const { return socket == nullptr; }
 
         EventLoopConcept &ParentLoop();
 
