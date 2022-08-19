@@ -23,13 +23,13 @@ namespace iphael {
     public:
         EventPromise() = default;
 
-        EventPromise(nullptr_t) : EventPromise{} {}
+        EventPromise(std::nullptr_t) : EventPromise{} {}
 
         EventPromise(void *buffer, size_t length, bool strict) {
             Set(buffer, length, strict);
         }
 
-        bool operator==(nullptr_t) const {
+        bool operator==(std::nullptr_t) const {
             return buffer == nullptr;
         }
 

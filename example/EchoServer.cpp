@@ -41,7 +41,7 @@ public:
 
     ~EchoServer() = default;
 
-    bool operator==(nullptr_t) const { return listener == nullptr; }
+    bool operator==(std::nullptr_t) const { return listener == nullptr; }
 
 private:
     Coroutine listenerTask() {

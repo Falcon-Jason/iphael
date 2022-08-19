@@ -33,7 +33,7 @@ namespace iphael {
         return *this;
     }
 
-    Coroutine &Coroutine::operator=(nullptr_t) noexcept {
+    Coroutine &Coroutine::operator=(std::nullptr_t) noexcept {
         Destroy();
         return *this;
     }

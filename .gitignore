@@ -1,4 +1,6 @@
+.cache/
+.idea/
+.vscode/
 cmake-*/
 build*/
-.idea/
 temp/

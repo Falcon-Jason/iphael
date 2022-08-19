@@ -34,7 +34,7 @@ namespace iphael {
     public:
         Coroutine() = default;
 
-        Coroutine(nullptr_t) : Coroutine{} {}
+        Coroutine(std::nullptr_t) : Coroutine{} {}
 
         explicit Coroutine(Handle handle) noexcept;
 
@@ -46,9 +46,9 @@ namespace iphael {
 
         Coroutine &operator=(Coroutine &&rhs) noexcept;
 
-        Coroutine &operator=(nullptr_t) noexcept;
+        Coroutine &operator=(std::nullptr_t) noexcept;
 
-        constexpr bool operator==(nullptr_t) const {
+        constexpr bool operator==(std::nullptr_t) const {
             return handle == nullptr;
         }
 

@@ -22,7 +22,7 @@ namespace iphael {
     public:
         TcpSocket() = default;
 
-        TcpSocket(nullptr_t) : TcpSocket{} {}
+        TcpSocket(std::nullptr_t) : TcpSocket{} {}
 
         TcpSocket(TcpSocket &&rhs) noexcept : TcpSocket{rhs.Release()} {}
 
@@ -50,7 +50,7 @@ namespace iphael {
         /**
          * @return whether this socket is null
          */
-        bool operator==(nullptr_t) const { return fildes < 0; }
+        bool operator==(std::nullptr_t) const { return fildes < 0; }
 
         /**
          * @return whether this socket is not null

@@ -34,7 +34,7 @@ namespace iphael {
 
         ~TcpConnection();
 
-        bool operator==(nullptr_t) const { return socket == nullptr; }
+        bool operator==(std::nullptr_t) const { return socket == nullptr; }
 
         NODISCARD int Fildes() const { return socket.Fildes(); }
 
